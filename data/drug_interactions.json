@@ -1,0 +1,65 @@
+[
+  {
+    "drug_a": "escitalopram",
+    "drug_b": "metoprolol",
+    "severity": "moderate",
+    "description": "Both may prolong QTc interval. Monitor ECG when combining SSRIs with beta-blockers.",
+    "recommendation": "Use with caution. Regular ECG monitoring recommended."
+  },
+  {
+    "drug_a": "methylphenidate",
+    "drug_b": "metoprolol",
+    "severity": "moderate",
+    "description": "Stimulants increase heart rate; beta-blockers decrease it. Opposing effects may mask symptoms.",
+    "recommendation": "Monitor blood pressure and heart rate closely."
+  },
+  {
+    "drug_a": "escitalopram",
+    "drug_b": "tramadol",
+    "severity": "major",
+    "description": "Risk of serotonin syndrome. Both increase serotonergic activity.",
+    "recommendation": "Avoid combination. Use alternative analgesic."
+  },
+  {
+    "drug_a": "escitalopram",
+    "drug_b": "pimozide",
+    "severity": "contraindicated",
+    "description": "Escitalopram inhibits CYP2D6, increasing pimozide levels and risk of QTc prolongation.",
+    "recommendation": "Do not combine."
+  },
+  {
+    "drug_a": "methylphenidate",
+    "drug_b": "MAOI",
+    "severity": "contraindicated",
+    "description": "Risk of hypertensive crisis. Methylphenidate increases catecholamine release.",
+    "recommendation": "Do not combine. 14-day washout required."
+  },
+  {
+    "drug_a": "escitalopram",
+    "drug_b": "MAOI",
+    "severity": "contraindicated",
+    "description": "Risk of serotonin syndrome. Fatal reactions reported.",
+    "recommendation": "Do not combine. 14-day washout required."
+  },
+  {
+    "drug_a": "metformin",
+    "drug_b": "escitalopram",
+    "severity": "none",
+    "description": "No known clinically significant interaction.",
+    "recommendation": "Safe to combine. Monitor blood glucose as SSRI may slightly affect appetite."
+  },
+  {
+    "drug_a": "metformin",
+    "drug_b": "methylphenidate",
+    "severity": "minor",
+    "description": "Stimulants may slightly decrease appetite, potentially affecting blood glucose patterns.",
+    "recommendation": "Monitor blood glucose. Adjust metformin if eating patterns change significantly."
+  },
+  {
+    "drug_a": "escitalopram",
+    "drug_b": "amlodipine",
+    "severity": "minor",
+    "description": "Minimal interaction. CYP2C19 rapid metabolizers may clear escitalopram faster.",
+    "recommendation": "Monitor for reduced SSRI efficacy in rapid metabolizers. PGx data relevant."
+  }
+]

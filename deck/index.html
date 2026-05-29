@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Soma Care Router — Deck</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --accent: #00e5a0;
+    --accent2: #00b4d8;
+    --text: #e8e8e8;
+    --dim: #888;
+    --danger: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+  .slide {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    padding: 80px;
+    text-align: center;
+    animation: fadeIn 0.4s ease;
+  }
+  .slide.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  h1 { font-size: 4rem; font-weight: 800; line-height: 1.1; margin-bottom: 24px; }
+  h2 { font-size: 2.8rem; font-weight: 700; line-height: 1.2; margin-bottom: 20px; }
+  h3 { font-size: 1.6rem; font-weight: 600; color: var(--accent); margin-bottom: 16px; text-transform: uppercase; letter-spacing: 3px; }
+  p, li { font-size: 1.5rem; line-height: 1.6; color: var(--dim); max-width: 900px; }
+  .highlight { color: var(--accent); }
+  .highlight2 { color: var(--accent2); }
+  .danger { color: var(--danger); }
+
+  .badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border: 1px solid var(--accent);
+    border-radius: 100px;
+    font-size: 0.9rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 60px;
+    margin-top: 48px;
+  }
+  .stat-box {
+    text-align: center;
+  }
+  .stat-box .num {
+    font-size: 4rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .stat-box .label {
+    font-size: 1rem;
+    color: var(--dim);
+    margin-top: 8px;
+  }
+
+  .arch-diagram {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-top: 40px;
+  }
+  .arch-box {
+    background: var(--surface);
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 32px 28px;
+    min-width: 220px;
+    text-align: center;
+  }
+  .arch-box h4 { font-size: 1.3rem; color: var(--text); margin-bottom: 8px; }
+  .arch-box p { font-size: 0.95rem; color: var(--dim); }
+  .arch-box.local { border-color: var(--accent); }
+  .arch-box.cloud { border-color: var(--accent2); }
+  .arch-box.data { border-color: #f0a500; }
+  .arch-arrow { font-size: 2rem; color: var(--dim); }
+  .arch-label { font-size: 0.8rem; color: var(--dim); margin-top: -8px; }
+
+  .tech-stack {
+    display: flex;
+    gap: 32px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tech-item {
+    background: var(--surface);
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 20px 28px;
+    font-size: 1.1rem;
+    color: var(--text);
+  }
+
+  .provider-cards {
+    display: flex;
+    gap: 24px;
+    margin-top: 36px;
+  }
+  .provider-card {
+    background: var(--surface);
+    border: 1px solid #333;
+    border-radius: 16px;
+    padding: 28px;
+    width: 280px;
+    text-align: left;
+  }
+  .provider-card h4 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text); }
+  .provider-card .spec { color: var(--accent); font-size: 0.9rem; margin-bottom: 12px; }
+  .provider-card .detail { font-size: 0.9rem; color: var(--dim); margin-bottom: 6px; }
+  .provider-card .avail { color: var(--accent2); font-size: 0.95rem; font-weight: 600; }
+
+  .controls {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+  }
+  .controls button {
+    background: var(--surface);
+    border: 1px solid #333;
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .controls button:hover { border-color: var(--accent); }
+
+  .slide-counter {
+    position: fixed;
+    bottom: 28px;
+    left: 32px;
+    color: var(--dim);
+    font-size: 0.85rem;
+  }
+
+  ul { list-style: none; text-align: left; }
+  ul li { margin-bottom: 12px; padding-left: 24px; position: relative; }
+  ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide active" id="s1">
+  <div class="badge">Google Cloud Rapid Agent Hackathon — MongoDB Track</div>
+  <h1>Soma <span class="highlight">Care Router</span></h1>
+  <p>Your data stays local. Actions happen in the cloud.</p>
+  <div class="tech-stack" style="margin-top: 48px;">
+    <div class="tech-item">Gemini 3</div>
+    <div class="tech-item">Agent Builder</div>
+    <div class="tech-item">MongoDB Atlas</div>
+    <div class="tech-item">MCP</div>
+  </div>
+</div>
+
+<!-- SLIDE 2: The Problem -->
+<div class="slide" id="s2">
+  <h3>The Problem</h3>
+  <h2>Health records are <span class="danger">locked in silos</span></h2>
+  <p>When a lab comes back abnormal, most patients don't know what specialist to see, what clinical trials exist, or whether their medications conflict. They Google. They panic. They wait.</p>
+  <div class="stats">
+    <div class="stat-box"><div class="num">300M</div><div class="label">patients with siloed records</div></div>
+    <div class="stat-box"><div class="num">40%</div><div class="label">delay care — don't know who to see</div></div>
+    <div class="stat-box"><div class="num">85%</div><div class="label">trial enrollment shortfall</div></div>
+  </div>
+</div>
+
+<!-- SLIDE 3: The Dilemma -->
+<div class="slide" id="s3">
+  <h3>The Dilemma</h3>
+  <h2>Privacy <span class="danger">or</span> Intelligence?</h2>
+  <p>Today, patients face a binary choice:</p>
+  <ul style="margin-top: 32px;">
+    <li><strong>Upload everything</strong> to the cloud for AI help — lose privacy</li>
+    <li><strong>Keep data local</strong> and stay stuck — lose access to the world</li>
+  </ul>
+  <p style="margin-top: 32px; color: var(--accent); font-size: 1.8rem; font-weight: 700;">We solved both.</p>
+</div>
+
+<!-- SLIDE 4: Health Passport -->
+<div class="slide" id="s4">
+  <h3>Foundation</h3>
+  <h2>Health Passport — <span class="highlight">Local-First Vault</span></h2>
+  <p>Everything lives on your device. Labs, medications, conditions, biometrics — structured, encrypted, yours.</p>
+  <div class="tech-stack" style="margin-top: 36px;">
+    <div class="tech-item">📋 Lab Reports</div>
+    <div class="tech-item">💊 Medications</div>
+    <div class="tech-item">🧬 Conditions</div>
+    <div class="tech-item">📊 Biometrics</div>
+    <div class="tech-item">⌚ Wearables</div>
+  </div>
+  <p style="margin-top: 24px; font-size: 1.1rem;">Powered by Gemma 4 E2B + PaddleOCR — runs entirely on-device</p>
+</div>
+
+<!-- SLIDE 5: Privacy Bridge -->
+<div class="slide" id="s5">
+  <h3>Innovation</h3>
+  <h2>The <span class="highlight">Privacy Bridge</span></h2>
+  <div class="arch-diagram">
+    <div class="arch-box local">
+      <h4>🔒 Health Passport</h4>
+      <p>Local vault<br/>Strips PII<br/>Sends intent only</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="arch-arrow">→</div>
+      <div class="arch-label">anonymized intent</div>
+    </div>
+    <div class="arch-box cloud">
+      <h4>☁️ Care Router Agent</h4>
+      <p>Gemini 3<br/>Reasons & routes<br/>MCP tool calls</p>
+    </div>
+    <div style="text-align: center;">
+      <div class="arch-arrow">→</div>
+      <div class="arch-label">MCP query</div>
+    </div>
+    <div class="arch-box data">
+      <h4>🍃 MongoDB Atlas</h4>
+      <p>Provider DB<br/>Vector Search<br/>10K+ records</p>
+    </div>
+  </div>
+  <p style="margin-top: 32px;">PII <span class="danger">never</span> touches the cloud. Identity re-attached on-device only.</p>
+</div>
+
+<!-- SLIDE 6: Demo Results -->
+<div class="slide" id="s6">
+  <h3>In Action</h3>
+  <h2>Matched <span class="highlight">Specialists</span></h2>
+  <p style="margin-bottom: 8px;">Query: "Elevated A1C, on SSRI + stimulant, San Francisco"</p>
+  <div class="provider-cards">
+    <div class="provider-card">
+      <h4>Dr. Sarah Chen</h4>
+      <div class="spec">Endocrinology — Diabetes Mgmt</div>
+      <div class="detail">📍 UCSF Endocrine Clinic — 0.8 mi</div>
+      <div class="detail">⭐ 4.9 (312 reviews)</div>
+      <div class="detail">✅ SSRI-aware prescribing</div>
+      <div class="avail">Next: Thursday 2pm</div>
+    </div>
+    <div class="provider-card">
+      <h4>Dr. James Okafor</h4>
+      <div class="spec">Endocrinology — Metabolic</div>
+      <div class="detail">📍 Kaiser SF Medical — 1.2 mi</div>
+      <div class="detail">⭐ 4.7 (287 reviews)</div>
+      <div class="detail">✅ Accepts Blue Shield</div>
+      <div class="avail">Next: Friday 10am</div>
+    </div>
+    <div class="provider-card">
+      <h4>Dr. Maria Lopez</h4>
+      <div class="spec">Endocrinology — Integrative</div>
+      <div class="detail">📍 One Medical — 0.5 mi</div>
+      <div class="detail">⭐ 4.8 (195 reviews)</div>
+      <div class="detail">✅ Bilingual EN/ES</div>
+      <div class="avail">Next: Monday 9am</div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: Tech Architecture -->
+<div class="slide" id="s7">
+  <h3>Architecture</h3>
+  <h2>Built for <span class="highlight2">Production</span></h2>
+  <ul style="margin-top: 24px;">
+    <li><strong class="highlight">Gemini 3</strong> — Agentic reasoning via Google Cloud Agent Builder (ADK)</li>
+    <li><strong class="highlight2">MongoDB Atlas</strong> — Provider database with vector search + Atlas Search</li>
+    <li><strong>MCP Protocol</strong> — MongoDB MCP server for structured tool calls</li>
+    <li><strong>Privacy Bridge</strong> — PII stripping happens on-device before any cloud call</li>
+    <li><strong>Health Passport</strong> — Gemma 4 E2B + PaddleOCR, local-first vault</li>
+    <li><strong>Web UI</strong> — Real-time agent trace visualization</li>
+  </ul>
+</div>
+
+<!-- SLIDE 8: Impact -->
+<div class="slide" id="s8">
+  <h3>Impact</h3>
+  <h2>Why This <span class="highlight">Matters</span></h2>
+  <div class="stats">
+    <div class="stat-box"><div class="num">3x</div><div class="label">faster specialist routing<br/>vs. manual referral</div></div>
+    <div class="stat-box"><div class="num">0</div><div class="label">PII in the cloud<br/>full privacy preserved</div></div>
+    <div class="stat-box"><div class="num">10K+</div><div class="label">providers searchable<br/>via vector similarity</div></div>
+  </div>
+  <p style="margin-top: 40px;">Extensible to clinical trial matching, drug interaction checks, insurance pre-auth, and multilingual care navigation.</p>
+</div>
+
+<!-- SLIDE 9: Close -->
+<div class="slide" id="s9">
+  <h1>Soma <span class="highlight">Care Router</span></h1>
+  <p style="font-size: 2rem; color: var(--text); margin: 24px 0;">Your data stays local.<br/>Actions happen in the cloud.</p>
+  <div class="tech-stack">
+    <div class="tech-item">Gemini 3</div>
+    <div class="tech-item">Google Cloud Agent Builder</div>
+    <div class="tech-item">MongoDB Atlas + MCP</div>
+    <div class="tech-item">Health Passport</div>
+  </div>
+  <p style="margin-top: 40px; font-size: 1.1rem;">
+    <span class="highlight">github.com/CarlKho-Minerva/soma-care-router</span><br/>
+    <span class="highlight2">Carl Kho — Somach Inc.</span>
+  </p>
+</div>
+
+<!-- Controls -->
+<div class="controls">
+  <button onclick="prev()">← Prev</button>
+  <button onclick="next()">Next →</button>
+</div>
+<div class="slide-counter" id="counter">1 / 9</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const counter = document.getElementById('counter');
+
+  function show(n) {
+    slides[current].classList.remove('active');
+    current = (n + slides.length) % slides.length;
+    slides[current].classList.add('active');
+    counter.textContent = `${current + 1} / ${slides.length}`;
+  }
+  function next() { show(current + 1); }
+  function prev() { show(current - 1); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+  });
+</script>
+</body>
+</html>

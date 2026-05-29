@@ -1,0 +1,210 @@
+[
+  {
+    "name": "Dr. Sarah Chen",
+    "specialty": "Endocrinology",
+    "subspecialties": ["Diabetes Management", "Metabolic Disorders", "Thyroid"],
+    "clinic": "UCSF Endocrine Clinic",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94143", "lat": 37.7631, "lng": -122.4586},
+    "distance_mi": 0.8,
+    "rating": 4.9,
+    "review_count": 312,
+    "next_available": "Thursday 2:00 PM",
+    "accepts_insurance": ["Blue Shield", "Aetna", "United", "Medicare"],
+    "common_prescriptions": [
+      {"name": "Metformin", "conflicts_with": []},
+      {"name": "Insulin Glargine", "conflicts_with": []},
+      {"name": "Empagliflozin", "conflicts_with": []}
+    ],
+    "conditions_treated": ["Type 2 Diabetes", "Pre-diabetes", "Elevated A1C", "Metabolic Syndrome", "Thyroid Disorders"],
+    "languages": ["English", "Mandarin"],
+    "description": "Board-certified endocrinologist specializing in diabetes management with a focus on patients taking psychiatric medications. Known for comprehensive metabolic workups and careful medication management for patients on SSRIs and stimulants.",
+    "notes": "SSRI-aware prescribing — regularly co-manages with psychiatrists"
+  },
+  {
+    "name": "Dr. James Okafor",
+    "specialty": "Endocrinology",
+    "subspecialties": ["Metabolic Disorders", "Obesity Medicine", "Diabetes Prevention"],
+    "clinic": "Kaiser San Francisco Medical Center",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94115", "lat": 37.7856, "lng": -122.4390},
+    "distance_mi": 1.2,
+    "rating": 4.7,
+    "review_count": 287,
+    "next_available": "Friday 10:00 AM",
+    "accepts_insurance": ["Kaiser", "Blue Shield", "Aetna"],
+    "common_prescriptions": [
+      {"name": "Metformin", "conflicts_with": []},
+      {"name": "Semaglutide", "conflicts_with": []},
+      {"name": "Pioglitazone", "conflicts_with": []}
+    ],
+    "conditions_treated": ["Type 2 Diabetes", "Obesity", "Metabolic Syndrome", "Pre-diabetes", "Insulin Resistance"],
+    "languages": ["English", "Igbo"],
+    "description": "Focused on metabolic health and diabetes prevention. Strong track record with weight management programs. Integrates lifestyle interventions with pharmacotherapy.",
+    "notes": "Accepts Kaiser — convenient if patient has Kaiser insurance"
+  },
+  {
+    "name": "Dr. Maria Lopez",
+    "specialty": "Endocrinology",
+    "subspecialties": ["Integrative Endocrinology", "Diabetes", "Adrenal Disorders"],
+    "clinic": "One Medical — Pacific Heights",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94109", "lat": 37.7920, "lng": -122.4230},
+    "distance_mi": 0.5,
+    "rating": 4.8,
+    "review_count": 195,
+    "next_available": "Monday 9:00 AM",
+    "accepts_insurance": ["One Medical", "Blue Shield", "Cigna", "United"],
+    "common_prescriptions": [
+      {"name": "Metformin", "conflicts_with": []},
+      {"name": "Berberine", "conflicts_with": ["metformin"]},
+      {"name": "Chromium Picolinate", "conflicts_with": []}
+    ],
+    "conditions_treated": ["Type 2 Diabetes", "Adrenal Fatigue", "PCOS", "Pre-diabetes", "Thyroid"],
+    "languages": ["English", "Spanish"],
+    "description": "Integrative approach combining evidence-based medicine with lifestyle optimization. Bilingual care available. Known for thorough dietary counseling and supplement-aware diabetes management.",
+    "notes": "Bilingual EN/ES — integrative approach"
+  },
+  {
+    "name": "Dr. Robert Kim",
+    "specialty": "Cardiology",
+    "subspecialties": ["Electrophysiology", "Heart Rhythm Disorders", "Preventive Cardiology"],
+    "clinic": "CPMC Heart & Vascular Institute",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94115", "lat": 37.7870, "lng": -122.4400},
+    "distance_mi": 1.0,
+    "rating": 4.8,
+    "review_count": 428,
+    "next_available": "Wednesday 11:00 AM",
+    "accepts_insurance": ["Blue Shield", "Aetna", "United", "Medicare", "Cigna"],
+    "common_prescriptions": [
+      {"name": "Metoprolol", "conflicts_with": ["methylphenidate"]},
+      {"name": "Lisinopril", "conflicts_with": []},
+      {"name": "Amlodipine", "conflicts_with": []}
+    ],
+    "conditions_treated": ["AV Block", "Arrhythmia", "Heart Palpitations", "Preventive Cardiology", "Hypertension"],
+    "languages": ["English", "Korean"],
+    "description": "Electrophysiologist specializing in heart rhythm disorders. Experienced with patients on psychiatric medications that affect cardiac conduction. Careful monitoring of QTc in patients on SSRIs.",
+    "notes": "Specializes in medication-induced rhythm issues — relevant for SSRI + stimulant patients"
+  },
+  {
+    "name": "Dr. Priya Sharma",
+    "specialty": "Cardiology",
+    "subspecialties": ["Preventive Cardiology", "Echocardiography", "Women's Heart Health"],
+    "clinic": "Stanford Heart Center — SF Outreach",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94107", "lat": 37.7750, "lng": -122.3940},
+    "distance_mi": 2.1,
+    "rating": 4.9,
+    "review_count": 356,
+    "next_available": "Next Tuesday 3:00 PM",
+    "accepts_insurance": ["Blue Shield", "United", "Medicare", "Stanford Health"],
+    "common_prescriptions": [
+      {"name": "Atorvastatin", "conflicts_with": []},
+      {"name": "Losartan", "conflicts_with": []},
+      {"name": "Aspirin", "conflicts_with": []}
+    ],
+    "conditions_treated": ["Preventive Cardiology", "Heart Failure", "Echocardiography", "Hypertension", "Lipid Disorders"],
+    "languages": ["English", "Hindi"],
+    "description": "Preventive cardiologist with expertise in risk stratification. Excellent for patients with borderline cardiac findings needing longitudinal follow-up.",
+    "notes": "Good fit for monitoring prior AV block finding"
+  },
+  {
+    "name": "Dr. Emily Torres",
+    "specialty": "Dermatology",
+    "subspecialties": ["Medical Dermatology", "Seborrheic Dermatitis", "Psoriasis"],
+    "clinic": "UCSF Dermatology Clinic",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94143", "lat": 37.7631, "lng": -122.4580},
+    "distance_mi": 0.9,
+    "rating": 4.7,
+    "review_count": 234,
+    "next_available": "Thursday 9:30 AM",
+    "accepts_insurance": ["Blue Shield", "Aetna", "United", "Medicare"],
+    "common_prescriptions": [
+      {"name": "Ketoconazole Shampoo", "conflicts_with": []},
+      {"name": "Clobetasol", "conflicts_with": []},
+      {"name": "Selenium Sulfide", "conflicts_with": []}
+    ],
+    "conditions_treated": ["Seborrheic Dermatitis", "Psoriasis", "Eczema", "Acne", "Rosacea"],
+    "languages": ["English", "Spanish"],
+    "description": "Medical dermatologist with strong expertise in scalp conditions and inflammatory skin disorders. Aware of dermatologic side effects of psychiatric medications including SSRIs.",
+    "notes": "Aware of SSRI-related skin changes"
+  },
+  {
+    "name": "Dr. Michael Huang",
+    "specialty": "Dermatology",
+    "subspecialties": ["Cosmetic Dermatology", "Seborrheic Dermatitis", "Hair Loss"],
+    "clinic": "Bay Derm — Union Square",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94108", "lat": 37.7879, "lng": -122.4074},
+    "distance_mi": 0.3,
+    "rating": 4.6,
+    "review_count": 178,
+    "next_available": "Wednesday 2:00 PM",
+    "accepts_insurance": ["Blue Shield", "Cigna", "Aetna"],
+    "common_prescriptions": [
+      {"name": "Ketoconazole 2%", "conflicts_with": []},
+      {"name": "Zinc Pyrithione", "conflicts_with": []},
+      {"name": "Tacrolimus", "conflicts_with": []}
+    ],
+    "conditions_treated": ["Seborrheic Dermatitis", "Hair Loss", "Acne", "Skin Cancer Screening", "Dermatitis"],
+    "languages": ["English", "Cantonese", "Mandarin"],
+    "description": "Experienced with chronic scalp conditions. Closest option in downtown SF. Quick appointments available for maintenance care.",
+    "notes": "Closest location — good for ongoing maintenance"
+  },
+  {
+    "name": "Dr. Angela Park",
+    "specialty": "Psychiatry",
+    "subspecialties": ["ADHD", "Depression", "Anxiety", "Psychopharmacology"],
+    "clinic": "Mindful Psych — SF",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94102", "lat": 37.7810, "lng": -122.4150},
+    "distance_mi": 0.6,
+    "rating": 4.9,
+    "review_count": 412,
+    "next_available": "Monday 11:00 AM",
+    "accepts_insurance": ["Blue Shield", "Aetna", "United"],
+    "common_prescriptions": [
+      {"name": "Escitalopram", "conflicts_with": ["MAOIs", "pimozide"]},
+      {"name": "Methylphenidate", "conflicts_with": ["MAOIs"]},
+      {"name": "Bupropion", "conflicts_with": ["MAOIs", "seizure history"]}
+    ],
+    "conditions_treated": ["ADHD", "Major Depressive Disorder", "Generalized Anxiety", "Panic Disorder", "OCD"],
+    "languages": ["English", "Korean"],
+    "description": "Psychopharmacologist specializing in ADHD and mood disorders. Expert in managing multi-medication regimens. Coordinates closely with PCPs and specialists for patients on complex stacks.",
+    "notes": "Current medication expert — ideal for med management review"
+  },
+  {
+    "name": "Dr. Raj Patel",
+    "specialty": "Nephrology",
+    "subspecialties": ["Kidney Disease Prevention", "Uric Acid Management", "Hypertension"],
+    "clinic": "SF Renal Associates",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94117", "lat": 37.7700, "lng": -122.4400},
+    "distance_mi": 1.5,
+    "rating": 4.6,
+    "review_count": 156,
+    "next_available": "Next Wednesday 10:00 AM",
+    "accepts_insurance": ["Blue Shield", "Medicare", "United", "Aetna"],
+    "common_prescriptions": [
+      {"name": "Allopurinol", "conflicts_with": []},
+      {"name": "Febuxostat", "conflicts_with": []},
+      {"name": "Losartan", "conflicts_with": []}
+    ],
+    "conditions_treated": ["Chronic Kidney Disease", "Gout", "High Uric Acid", "Kidney Stones", "Hypertension"],
+    "languages": ["English", "Hindi", "Gujarati"],
+    "description": "Nephrologist with expertise in early kidney disease prevention. Monitors uric acid trends and provides dietary guidance. Good fit for patients with borderline uric acid levels.",
+    "notes": "Relevant for monitoring uric acid 6.9 — borderline"
+  },
+  {
+    "name": "Dr. Lisa Nakamura",
+    "specialty": "Internal Medicine",
+    "subspecialties": ["Preventive Medicine", "Complex Care Management", "PGx-Guided Prescribing"],
+    "clinic": "One Medical — SoMa",
+    "location": {"city": "San Francisco", "state": "CA", "zip": "94105", "lat": 37.7850, "lng": -122.3930},
+    "distance_mi": 1.8,
+    "rating": 4.8,
+    "review_count": 267,
+    "next_available": "Friday 2:00 PM",
+    "accepts_insurance": ["One Medical", "Blue Shield", "Cigna", "United"],
+    "common_prescriptions": [
+      {"name": "Various — PGx guided", "conflicts_with": []}
+    ],
+    "conditions_treated": ["Complex Multi-System Care", "Preventive Health", "PGx-Guided Medication Management", "Metabolic Health"],
+    "languages": ["English", "Japanese"],
+    "description": "Internist specializing in complex patients on multiple medications. Uses pharmacogenomic data to guide prescribing decisions. Ideal for patients with PGx results showing rapid metabolizer status.",
+    "notes": "PGx-guided — great match for CYP2C19 rapid metabolizer profile"
+  }
+]

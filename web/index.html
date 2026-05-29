@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Soma Care Router</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1c1c1c;
+    --border: #2a2a2a;
+    --accent: #00e5a0;
+    --accent-dim: rgba(0, 229, 160, 0.1);
+    --accent2: #00b4d8;
+    --text: #e8e8e8;
+    --dim: #888;
+    --danger: #ff6b6b;
+    --warn: #f0a500;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* Layout */
+  .app { display: grid; grid-template-columns: 340px 1fr 340px; height: 100vh; }
+
+  /* Left Panel — Vault */
+  .vault-panel {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .vault-panel h2 {
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .vault-file {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .vault-file-header {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dim);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .vault-file-header:hover { color: var(--text); }
+  .vault-file-header .arrow { transition: transform 0.2s; }
+  .vault-file.open .arrow { transform: rotate(90deg); }
+  .vault-file-content {
+    display: none;
+    padding: 0 14px 12px;
+    font-size: 0.75rem;
+    color: var(--dim);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .vault-file.open .vault-file-content { display: block; }
+
+  .privacy-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(0, 229, 160, 0.2);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  /* Center — Main */
+  .main-panel {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .header h1 span { color: var(--accent); }
+  .header .status {
+    font-size: 0.8rem;
+    color: var(--dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .header .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Chat / Results area */
+  .results-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 32px;
+  }
+  .message {
+    margin-bottom: 20px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .message.user .bubble {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 4px 12px;
+    padding: 14px 18px;
+    max-width: 600px;
+    margin-left: auto;
+    font-size: 0.95rem;
+  }
+  .message.agent .bubble {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px 12px 12px 4px;
+    padding: 14px 18px;
+    max-width: 700px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .message.agent .bubble h3 { color: var(--accent); font-size: 1rem; margin: 12px 0 6px; }
+  .message.agent .bubble ul { margin: 8px 0; padding-left: 20px; }
+  .message.agent .bubble li { margin-bottom: 4px; }
+  .message.agent .bubble strong { color: var(--text); }
+  .message .label {
+    font-size: 0.7rem;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+  .message.user .label { text-align: right; }
+
+  /* Provider cards in results */
+  .provider-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin: 12px 0;
+  }
+  .provider-card h4 { font-size: 1rem; margin-bottom: 4px; }
+  .provider-card .spec { color: var(--accent); font-size: 0.85rem; }
+  .provider-card .meta { color: var(--dim); font-size: 0.8rem; margin-top: 8px; line-height: 1.5; }
+
+  /* Input bar */
+  .input-bar {
+    padding: 16px 32px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+  }
+  .input-row input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-size: 0.95rem;
+    outline: none;
+  }
+  .input-row input:focus { border-color: var(--accent); }
+  .input-row input::placeholder { color: #555; }
+  .input-row button {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .input-row button:hover { opacity: 0.9; }
+  .input-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .quick-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .quick-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    color: var(--dim);
+    cursor: pointer;
+  }
+  .quick-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Right Panel — Agent Trace */
+  .trace-panel {
+    background: var(--surface);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .trace-panel h2 {
+    font-size: 0.85rem;
+    color: var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+  .trace-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 0.75rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    animation: slideUp 0.3s ease;
+  }
+  .trace-item .trace-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .trace-item.tool-call .trace-label { color: var(--warn); }
+  .trace-item.tool-result .trace-label { color: var(--accent2); }
+  .trace-item.response .trace-label { color: var(--accent); }
+  .trace-item .trace-body { color: var(--dim); white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
+
+  .thinking {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0;
+    color: var(--dim);
+    font-size: 0.85rem;
+  }
+  .thinking .dots span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    margin: 0 2px;
+    animation: bounce 1.4s infinite ease-in-out;
+  }
+  .thinking .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .thinking .dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+  /* Anonymization banner */
+  .anon-banner {
+    background: rgba(0, 229, 160, 0.05);
+    border: 1px solid rgba(0, 229, 160, 0.15);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 0.8rem;
+    color: var(--accent);
+    display: none;
+  }
+  .anon-banner.visible { display: block; }
+
+  /* Responsive */
+  @media (max-width: 1100px) {
+    .app { grid-template-columns: 1fr; }
+    .vault-panel, .trace-panel { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Left: Health Vault -->
+  <div class="vault-panel">
+    <div class="privacy-badge">🔒 Local-Only Health Vault — PII never sent to cloud</div>
+    <h2>🗂️ Health Vault</h2>
+    <div id="vault-files"></div>
+  </div>
+
+  <!-- Center: Main -->
+  <div class="main-panel">
+    <div class="header">
+      <h1>Soma <span>Care Router</span></h1>
+      <div class="status"><div class="dot"></div> Agent Ready</div>
+    </div>
+
+    <div class="results-area" id="results">
+      <div class="message agent">
+        <div class="label">Care Router</div>
+        <div class="bubble">
+          <strong>Welcome to Soma Care Router.</strong><br><br>
+          I can help you find the right specialist based on your health vault data. Your personal information stays on this device — I only receive anonymized clinical context.<br><br>
+          Try asking something like:<br>
+          • "My A1C came back at 7.2%. Who should I see?"<br>
+          • "Find a cardiologist who understands SSRI interactions"<br>
+          • "I need a dermatologist for seborrheic dermatitis"
+        </div>
+      </div>
+    </div>
+
+    <div class="input-bar">
+      <div class="anon-banner" id="anon-banner">
+        🔒 PII stripped — sending anonymized intent to cloud agent...
+      </div>
+      <div class="input-row">
+        <input type="text" id="query-input" placeholder="Describe what specialist you need..." />
+        <button id="send-btn" onclick="sendQuery()">Route →</button>
+      </div>
+      <div class="quick-actions">
+        <div class="quick-btn" onclick="quickQuery('My A1C is 7.2%. Find an endocrinologist in San Francisco.')">🧪 Elevated A1C</div>
+        <div class="quick-btn" onclick="quickQuery('Find a cardiologist who understands SSRI and stimulant interactions.')">❤️ Cardiology + Meds</div>
+        <div class="quick-btn" onclick="quickQuery('I need a dermatologist for seborrheic dermatitis, preferably one who knows about SSRI side effects.')">🧴 Dermatology</div>
+        <div class="quick-btn" onclick="quickQuery('Check if metformin would interact with my current escitalopram and methylphenidate.')">💊 Drug Check</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Agent Trace -->
+  <div class="trace-panel">
+    <h2>🔍 Agent Trace</h2>
+    <div id="trace-items">
+      <div class="trace-item response">
+        <div class="trace-label">System</div>
+        <div class="trace-body">Agent initialized. Waiting for query...</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const resultsEl = document.getElementById('results');
+const traceEl = document.getElementById('trace-items');
+const inputEl = document.getElementById('query-input');
+const sendBtn = document.getElementById('send-btn');
+const anonBanner = document.getElementById('anon-banner');
+
+// Load vault on start
+async function loadVault() {
+  try {
+    const res = await fetch('/api/vault');
+    const vault = await res.json();
+    const container = document.getElementById('vault-files');
+    for (const [filename, content] of Object.entries(vault)) {
+      const div = document.createElement('div');
+      div.className = 'vault-file';
+      div.innerHTML = `
+        <div class="vault-file-header" onclick="this.parentElement.classList.toggle('open')">
+          <span>${filename}</span>
+          <span class="arrow">▶</span>
+        </div>
+        <div class="vault-file-content">${escapeHtml(content)}</div>
+      `;
+      container.appendChild(div);
+    }
+  } catch (e) {
+    console.error('Failed to load vault:', e);
+  }
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function addMessage(role, html) {
+  const div = document.createElement('div');
+  div.className = `message ${role}`;
+  div.innerHTML = `<div class="label">${role === 'user' ? 'You' : 'Care Router'}</div><div class="bubble">${html}</div>`;
+  resultsEl.appendChild(div);
+  resultsEl.scrollTop = resultsEl.scrollHeight;
+}
+
+function addThinking() {
+  const div = document.createElement('div');
+  div.className = 'thinking';
+  div.id = 'thinking-indicator';
+  div.innerHTML = `<div class="dots"><span></span><span></span><span></span></div> Routing through Privacy Bridge...`;
+  resultsEl.appendChild(div);
+  resultsEl.scrollTop = resultsEl.scrollHeight;
+}
+
+function removeThinking() {
+  const el = document.getElementById('thinking-indicator');
+  if (el) el.remove();
+}
+
+function addTrace(type, content) {
+  const div = document.createElement('div');
+  div.className = `trace-item ${type}`;
+  const labels = { 'tool_call': 'Tool Call', 'tool_result': 'Tool Result', 'response': 'Response', 'anonymize': 'PII Strip' };
+  div.innerHTML = `<div class="trace-label">${labels[type] || type}</div><div class="trace-body">${escapeHtml(typeof content === 'string' ? content : JSON.stringify(content, null, 2))}</div>`;
+  traceEl.appendChild(div);
+  traceEl.parentElement.scrollTop = traceEl.parentElement.scrollHeight;
+}
+
+function quickQuery(text) {
+  inputEl.value = text;
+  sendQuery();
+}
+
+async function sendQuery() {
+  const query = inputEl.value.trim();
+  if (!query) return;
+
+  inputEl.value = '';
+  sendBtn.disabled = true;
+  addMessage('user', escapeHtml(query));
+
+  // Step 1: Anonymize
+  anonBanner.classList.add('visible');
+  addTrace('anonymize', 'Stripping PII from health vault context...');
+
+  let anonymizedContext = '';
+  try {
+    const vaultRes = await fetch('/api/vault');
+    const vault = await vaultRes.json();
+    const fullContext = Object.values(vault).join('\n\n');
+
+    const anonRes = await fetch('/api/anonymize', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ context: fullContext }),
+    });
+    const anonData = await anonRes.json();
+    anonymizedContext = anonData.anonymized;
+    addTrace('anonymize', `PII stripped. Anonymized context:\n${anonymizedContext.substring(0, 500)}...`);
+  } catch (e) {
+    addTrace('anonymize', `Warning: Could not anonymize — using raw vault. Error: ${e.message}`);
+  }
+
+  anonBanner.classList.remove('visible');
+
+  // Step 2: Route
+  addThinking();
+
+  try {
+    const routeRes = await fetch('/api/route', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, context: anonymizedContext }),
+    });
+    const data = await routeRes.json();
+
+    removeThinking();
+
+    // Add trace items
+    if (data.trace) {
+      for (const t of data.trace) {
+        if (t.type === 'tool_call') {
+          addTrace('tool_call', `${t.tool}(${JSON.stringify(t.args)})`);
+        } else if (t.type === 'tool_result') {
+          addTrace('tool_result', t.result);
+        }
+      }
+    }
+
+    // Render response
+    const html = markdownToHtml(data.response || 'No response from agent.');
+    addMessage('agent', html);
+    addTrace('response', 'Final response delivered.');
+  } catch (e) {
+    removeThinking();
+    addMessage('agent', `<span style="color: var(--danger)">Error: ${escapeHtml(e.message)}</span>`);
+    addTrace('response', `Error: ${e.message}`);
+  }
+
+  sendBtn.disabled = false;
+  inputEl.focus();
+}
+
+// Basic markdown → HTML
+function markdownToHtml(md) {
+  return md
+    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/^- (.*$)/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+// Enter to send
+inputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendQuery();
+  }
+});
+
+// Init
+loadVault();
+</script>
+</body>
+</html>
