@@ -1,8 +1,8 @@
-# Soma Care Router
+# Somach - Care Router
 
 > Your data stays local. Actions happen in the cloud.
 
-**Soma Care Router** is a privacy-preserving specialist routing agent built on [Health Passport](https://play.google.com/store/apps/details?id=com.carlkho.healthpassport) — a local-first health record vault. When a patient's labs flag something abnormal, the Care Router strips all PII, sends an anonymized clinical intent to a Google Cloud Agent (Gemini 3), and uses MongoDB Atlas via MCP to find matching specialists, check drug interactions, and return actionable next steps — all without patient identity ever touching the cloud.
+**Somach - Care Router** is a privacy-preserving specialist routing agent built on [Health Passport](https://play.google.com/store/apps/details?id=com.carlkho.healthpassport) — a local-first health record vault. When a patient's labs flag something abnormal, the Care Router strips all PII, sends an anonymized clinical intent to a Google Cloud Agent (Gemini 3), and uses MongoDB Atlas via MCP to find matching specialists, check drug interactions, and return actionable next steps — all without patient identity ever touching the cloud.
 
 ## Architecture — The Privacy Bridge
 
