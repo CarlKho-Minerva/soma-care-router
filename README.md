@@ -6,22 +6,8 @@
 
 ## Architecture — The Privacy Bridge
 
-```
-┌─────────────────────┐        ┌─────────────────────┐        ┌─────────────────┐
-│  🔒 Health Passport │  anon  │  ☁️  Care Router     │  MCP   │  🍃 MongoDB     │
-│  (Local Device)     │ intent │  Agent (Gemini 3)    │ query  │  Atlas          │
-│                     │───────→│                     │───────→│                 │
-│  - Lab reports      │        │  - Reasons through  │        │  - 10K providers│
-│  - Medications      │        │    clinical intent   │        │  - Vector search│
-│  - Conditions       │        │  - Routes to action  │←───────│  - Specialties  │
-│  - Biometrics       │        │  - Checks conflicts  │ results│  - Drug profiles│
-└─────────────────────┘        └─────────────────────┘        └─────────────────┘
-                                         │
-                                         ↓
-                                Action plan returned
-                                to local device (PII
-                                re-attached on-device)
-```
+<img width="2536" height="1751" alt="image" src="https://github.com/user-attachments/assets/aaae500e-d46d-4999-8f31-cfae3d51f624" />
+
 
 ## Demo
 
