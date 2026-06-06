@@ -1,5 +1,6 @@
-google-adk>=1.0.0
+google-adk>=2.1.0
 google-genai>=1.0.0
+mcp>=1.0.0          # MongoDB MCP path (USE_MONGODB_MCP=1) also needs Node.js / npx on the host
 fastapi>=0.115.0
 uvicorn[standard]>=0.34.0
 pymongo>=4.10.0

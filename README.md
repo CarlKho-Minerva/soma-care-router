@@ -13,21 +13,23 @@
 
 🎬 [Watch the 3-minute demo](TODO) | 🌐 [Live hosted project](https://care-router.somach.life)
 
-## Track
+## Tracks
 
-**MongoDB** — Google Cloud Rapid Agent Hackathon
+- Built for: **MongoDB × Google Cloud Rapid Agent Hackathon**
+- Hardened for: **Google for Startups AI Agents Challenge — Track 2 (Optimize)**. The reliability layer (`eval/`, the unified ADK Runner, the hardened tools and prompts) is the contribution unique to that submission.
 
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Agentic AI | Gemini 3 via Google Cloud Agent Builder (ADK) |
-| Tool Integration | MongoDB MCP Server |
+| Agentic AI | Gemini via ADK (`Agent` + `Runner`); model set by `CARE_ROUTER_MODEL` |
+| Tool Integration | Two selectable paths: hardened ADK `FunctionTool`s (default, deterministic) and the native read-only **MongoDB MCP server** via ADK `MCPToolset` (`USE_MONGODB_MCP=1`) |
 | Database | MongoDB Atlas (Vector Search + Atlas Search) |
 | Local Vault | Health Passport (Gemma 4 E2B + PaddleOCR) |
 | Backend | Python (google-adk + FastAPI) |
 | Frontend | Vanilla JS + HTML |
 | Deployment | Google Cloud Run |
+| Evaluation | ADK `adk eval` + a custom reliability scoreboard (`eval/`) |
 
 ## Quickstart
 
@@ -71,6 +73,8 @@ Open `http://localhost:8000` to use the Care Router.
 | `GOOGLE_CLOUD_PROJECT` | GCP project ID |
 | `GOOGLE_CLOUD_LOCATION` | GCP region (e.g., `us-central1`) |
 | `GOOGLE_API_KEY` | Gemini API key (alternative to Vertex AI) |
+| `CARE_ROUTER_MODEL` | Gemini model id (default `gemini-2.5-flash`) |
+| `USE_MONGODB_MCP` | `1` to route tools through the native MongoDB MCP server (needs Node.js / npx) |
 
 ## How It Works
 
@@ -103,6 +107,24 @@ soma-care-router/
 ├── DEMO_SCRIPT.md           # Demo recording script
 └── requirements.txt
 ```
+
+## Reliability & Evaluation
+
+Serving, the demo, and evaluation all run the same ADK `root_agent` (`agent/runner.py`), so we test exactly what we ship. The agent's instruction forces every provider name and appointment slot to come from a tool result, tools return a structured `ok`/`degraded` envelope instead of silently degrading, and a stalled run recovers without fabricating an answer.
+
+```bash
+# deterministic, no credentials (CI gate):
+pytest eval/test_tools_reliability.py -q
+
+# live reliability scoreboard (needs Gemini key + seeded MongoDB):
+python eval/run_eval.py --label baseline --out eval/baseline.json   # pre-hardening commit
+python eval/run_eval.py --label final    --out eval/final.json      # HEAD
+
+# Google's trajectory/response eval:
+adk eval agent eval/health_routing.evalset.json --config_file_path eval/test_config.json
+```
+
+Before and after numbers and the full failure taxonomy live in [eval/RESULTS.md](eval/RESULTS.md).
 
 ## License
 

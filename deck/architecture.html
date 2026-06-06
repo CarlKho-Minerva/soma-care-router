@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Soma Care Router — Architecture</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #141414;
+    --surface2: #1c1c1c;
+    --border: #2a2a2a;
+    --accent: #00e5a0;   /* on-device / local */
+    --accent2: #00b4d8;  /* cloud / eval */
+    --data: #f0a500;     /* database */
+    --text: #e8e8e8;
+    --dim: #8a8a8a;
+    --danger: #ff6b6b;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    width: 100vw;
+    min-height: 100vh;
+    padding: 40px 56px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+  header { text-align: center; }
+  header h1 { font-size: 2.1rem; font-weight: 800; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--dim); font-size: 1.05rem; margin-top: 6px; }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 28px 28px;
+  }
+  .panel-title {
+    font-size: 0.8rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 4px;
+  }
+  .panel-sub { color: var(--dim); font-size: 0.95rem; margin-bottom: 20px; }
+
+  .flow { display: flex; align-items: stretch; justify-content: center; gap: 14px; flex-wrap: nowrap; }
+
+  .group {
+    border: 1px dashed #3a3a3a;
+    border-radius: 14px;
+    padding: 16px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 210px;
+  }
+  .group-label {
+    font-size: 0.68rem; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--dim); text-align: center; margin-bottom: 2px;
+  }
+  .group.local { border-color: rgba(0,229,160,0.4); }
+  .group.local .group-label { color: var(--accent); }
+  .group.cloud { border-color: rgba(0,180,216,0.4); }
+  .group.cloud .group-label { color: var(--accent2); }
+  .group.data { border-color: rgba(240,165,0,0.4); }
+  .group.data .group-label { color: var(--data); }
+
+  .box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .box .t { font-size: 0.98rem; font-weight: 600; }
+  .box .d { font-size: 0.78rem; color: var(--dim); margin-top: 4px; line-height: 1.35; }
+  .box.accent { border-color: rgba(0,229,160,0.5); }
+  .box.accent2 { border-color: rgba(0,180,216,0.5); }
+  .box.data { border-color: rgba(240,165,0,0.5); }
+
+  .arrow { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 116px; }
+  .arrow .line { font-size: 1.6rem; color: var(--dim); line-height: 1; }
+  .arrow .lbl { font-size: 0.72rem; color: var(--dim); text-align: center; margin-top: 4px; }
+  .arrow.green .line { color: var(--accent); }
+  .arrow.blue .line { color: var(--accent2); }
+
+  .return {
+    margin-top: 14px; text-align: center; font-size: 0.82rem; color: var(--accent);
+    border-top: 1px dashed #333; padding-top: 12px;
+  }
+  .return span { color: var(--danger); }
+
+  /* Panel 2 loop */
+  .loop { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: nowrap; }
+  .legend { display: flex; gap: 28px; justify-content: center; font-size: 0.82rem; color: var(--dim); flex-wrap: wrap; }
+  .legend b.g { color: var(--accent); } .legend b.b { color: var(--accent2); } .legend b.d { color: var(--data); }
+  .foot { text-align: center; color: var(--dim); font-size: 0.85rem; }
+  .foot span { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Soma <span>Care Router</span> — Architecture</h1>
+  <p>Your data stays local. Actions happen in the cloud.</p>
+</header>
+
+<!-- PANEL 1 — Privacy Bridge -->
+<div class="panel">
+  <div class="panel-title">Panel 1 · The Privacy Bridge</div>
+  <div class="panel-sub">Only a de-identified clinical intent leaves the device. The returned plan has identity re-attached on-device.</div>
+
+  <div class="flow">
+    <div class="group local">
+      <div class="group-label">On-device · Health Passport</div>
+      <div class="box accent"><div class="t">Local vault</div><div class="d">labs · meds · conditions</div></div>
+      <div class="box accent"><div class="t">PII strip</div><div class="d">names, DOB, IDs removed</div></div>
+    </div>
+
+    <div class="arrow green"><div class="line">→</div><div class="lbl">anonymized<br/>clinical intent</div></div>
+
+    <div class="group cloud">
+      <div class="group-label">Google Cloud Run</div>
+      <div class="box accent2"><div class="t">Care Router agent</div><div class="d">Gemini + ADK Runner<br/>reasons · routes tools</div></div>
+    </div>
+
+    <div class="arrow blue"><div class="line">→</div><div class="lbl">FunctionTools<br/>or MongoDB MCP</div></div>
+
+    <div class="group data">
+      <div class="group-label">MongoDB Atlas</div>
+      <div class="box data"><div class="t">providers</div><div class="d">vector + text search</div></div>
+      <div class="box data"><div class="t">drug_interactions</div><div class="d">severity lookup</div></div>
+    </div>
+  </div>
+
+  <div class="return">← action plan returned with <span>no PII</span> · identity re-attached on-device only</div>
+</div>
+
+<!-- PANEL 2 — Optimization & Evaluation -->
+<div class="panel">
+  <div class="panel-title">Panel 2 · Optimization &amp; Evaluation loop (Track 2)</div>
+  <div class="panel-sub">One <code>root_agent</code> is served and evaluated through the same ADK Runner. Evaluation drives hardening; a credential-free gate blocks regressions.</div>
+
+  <div class="loop">
+    <div class="box accent2"><div class="t">root_agent</div><div class="d">one ADK Runner<br/>serve + eval</div></div>
+    <div class="arrow blue"><div class="line">→</div></div>
+    <div class="group cloud" style="min-width:240px">
+      <div class="group-label">Evaluation</div>
+      <div class="box"><div class="t">run_eval.py</div><div class="d">24 behavioral scenarios</div></div>
+      <div class="box"><div class="t">adk eval</div><div class="d">health_routing.evalset.json</div></div>
+    </div>
+    <div class="arrow blue"><div class="line">→</div></div>
+    <div class="box"><div class="t">Metrics scoreboard</div><div class="d">routing · grounding · safety<br/>PII · completion · latency</div></div>
+    <div class="arrow green"><div class="line">→</div><div class="lbl">failure<br/>taxonomy</div></div>
+    <div class="box accent"><div class="t">Harden</div><div class="d">prompts.py + tools.py</div></div>
+  </div>
+
+  <div class="return">↻ harden → re-run eval → update root_agent &nbsp;·&nbsp; <b style="color:var(--accent)">test_tools_reliability.py</b> runs credential-free and blocks regressions</div>
+</div>
+
+<div class="legend">
+  <span><b class="g">green</b> = on-device / local</span>
+  <span><b class="b">blue</b> = cloud / evaluation</span>
+  <span><b class="d">amber</b> = database</span>
+</div>
+
+<div class="foot">Built with Gemini · Agent Development Kit · MongoDB Atlas over MCP &nbsp;|&nbsp; <span>github.com/CarlKho-Minerva/soma-care-router</span> · Somach, Inc.</div>
+
+</body>
+</html>

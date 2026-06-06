@@ -1,8 +1,11 @@
-"""Soma Care Router — FastAPI server with ADK agent."""
+"""Soma Care Router — FastAPI server.
 
-import json
+The care-routing endpoint runs through the ADK agent (`agent/runner.py`) so the
+demo, production, and `adk eval` all exercise the identical agent. Gemini is
+used directly only for the one-shot PII anonymizer.
+"""
+
 import os
-import traceback
 
 from dotenv import load_dotenv
 
@@ -16,11 +19,11 @@ from fastapi.staticfiles import StaticFiles
 
 from google import genai
 
-from agent.prompts import CARE_ROUTER_SYSTEM_PROMPT, ANONYMIZER_PROMPT
-from agent.tools import search_providers, check_drug_interactions, get_provider_details
+from agent.prompts import ANONYMIZER_PROMPT
+from agent.runner import run_query
 
 
-# --- Gemini client setup ---
+# --- Gemini client setup (anonymizer only) ---
 
 def _get_gemini_client():
     api_key = os.environ.get("GOOGLE_API_KEY")
@@ -33,7 +36,7 @@ def _get_gemini_client():
 
 
 client = _get_gemini_client()
-MODEL = "gemini-2.5-flash"  # Use latest available; swap to gemini-3.0-flash when GA
+MODEL = os.environ.get("CARE_ROUTER_MODEL", "gemini-2.5-flash")
 
 
 # --- Health vault loader ---
@@ -50,56 +53,6 @@ def load_vault() -> dict[str, str]:
             with open(os.path.join(VAULT_DIR, fname)) as f:
                 vault[fname] = f.read()
     return vault
-
-
-# --- Tool dispatch for function-calling ---
-
-TOOL_FUNCTIONS = {
-    "search_providers": search_providers,
-    "check_drug_interactions": check_drug_interactions,
-    "get_provider_details": get_provider_details,
-}
-
-TOOL_DECLARATIONS = [
-    {
-        "name": "search_providers",
-        "description": "Search the provider database for specialists matching clinical criteria.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "specialty": {"type": "string", "description": "Medical specialty needed"},
-                "location_city": {"type": "string", "description": "City for proximity search"},
-                "conditions": {"type": "string", "description": "Comma-separated relevant conditions"},
-                "current_medications": {"type": "string", "description": "Comma-separated current medications"},
-                "max_results": {"type": "integer", "description": "Max providers to return"},
-            },
-            "required": ["specialty", "location_city"],
-        },
-    },
-    {
-        "name": "check_drug_interactions",
-        "description": "Check for known drug interactions between current and proposed medications.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "current_medications": {"type": "string", "description": "Comma-separated current medications"},
-                "proposed_medication": {"type": "string", "description": "Medication being considered"},
-            },
-            "required": ["current_medications", "proposed_medication"],
-        },
-    },
-    {
-        "name": "get_provider_details",
-        "description": "Get full details for a specific provider.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "provider_name": {"type": "string", "description": "Name of the provider"},
-            },
-            "required": ["provider_name"],
-        },
-    },
-]
 
 
 # --- FastAPI app ---
@@ -158,87 +111,29 @@ async def anonymize(request: Request):
 
 @app.post("/api/route")
 async def route_care(request: Request):
-    """Main care routing endpoint — runs the agent loop."""
+    """Main care routing endpoint — runs the ADK agent."""
     body = await request.json()
     query = body.get("query", "")
     anonymized_context = body.get("context", "")
 
-    # Build the full prompt with vault context
+    # The system prompt lives in the agent's instruction; the message carries
+    # only the anonymized clinical context and the patient's request.
     vault = load_vault()
     vault_text = "\n\n".join(f"## {k}\n{v}" for k, v in vault.items())
+    user_message = (
+        f"## Anonymized patient context\n{anonymized_context}\n\n"
+        f"## Health vault reference\n{vault_text}\n\n"
+        f"## Patient request\n{query}"
+    )
 
-    messages = [
-        {
-            "role": "user",
-            "parts": [{"text": (
-                f"{CARE_ROUTER_SYSTEM_PROMPT}\n\n"
-                f"## Anonymized Patient Context\n{anonymized_context}\n\n"
-                f"## Health Vault Reference\n{vault_text}\n\n"
-                f"## Patient Request\n{query}"
-            )}],
-        }
-    ]
-
-    # Agent loop with function calling
-    trace = []
-    max_turns = 5
-
-    for turn in range(max_turns):
-        response = client.models.generate_content(
-            model=MODEL,
-            contents=messages,
-            config={
-                "tools": [{"function_declarations": TOOL_DECLARATIONS}],
-            },
-        )
-
-        candidate = response.candidates[0]
-        parts = candidate.content.parts
-
-        # Check for function calls
-        fn_calls = [p for p in parts if hasattr(p, "function_call") and p.function_call]
-        if not fn_calls:
-            # Final text response
-            final_text = "".join(p.text for p in parts if hasattr(p, "text") and p.text)
-            trace.append({"type": "response", "content": final_text})
-            return JSONResponse({"response": final_text, "trace": trace})
-
-        # Execute function calls
-        messages.append({"role": "model", "parts": parts})
-        fn_response_parts = []
-
-        for part in fn_calls:
-            fc = part.function_call
-            fn_name = fc.name
-            fn_args = dict(fc.args) if fc.args else {}
-
-            trace.append({"type": "tool_call", "tool": fn_name, "args": fn_args})
-
-            # Execute the tool
-            tool_fn = TOOL_FUNCTIONS.get(fn_name)
-            if tool_fn:
-                try:
-                    result = tool_fn(**fn_args)
-                except Exception as e:
-                    result = json.dumps({"error": str(e)})
-            else:
-                result = json.dumps({"error": f"Unknown tool: {fn_name}"})
-
-            trace.append({"type": "tool_result", "tool": fn_name, "result": result})
-
-            fn_response_parts.append({
-                "function_response": {
-                    "name": fn_name,
-                    "response": {"result": result},
-                }
-            })
-
-        messages.append({"role": "user", "parts": fn_response_parts})
-
-    return JSONResponse({"response": "Agent reached maximum turns.", "trace": trace})
+    result = await run_query(user_message)
+    return JSONResponse(result)
 
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))
+    import os
+
+    # Get the port from the environment, defaulting to 8080 for Cloud Run
+    port = int(os.environ.get("PORT", 8080))
     uvicorn.run(app, host="0.0.0.0", port=port)
