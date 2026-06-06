@@ -24,22 +24,24 @@ class _FakeCursor:
     def __init__(self, rows):
         self._rows = rows
 
+    def sort(self, *a, **k):
+        return self
+
     def limit(self, n):
         return self._rows[:n]
 
 
 class _FakeCollection:
-    def __init__(self, find_rows=None, aggregate_error=False, find_one_row=None):
+    def __init__(self, find_rows=None, find_error=False, find_one_row=None):
         self._find_rows = find_rows or []
-        self._aggregate_error = aggregate_error
+        self._find_error = find_error
         self._find_one_row = find_one_row
-
-    def aggregate(self, pipeline):
-        if self._aggregate_error:
-            raise PyMongoError("simulated vector search failure")
-        return list(self._find_rows)
+        self._call_count = 0
 
     def find(self, *a, **k):
+        self._call_count += 1
+        if self._find_error and self._call_count == 1:
+            raise PyMongoError("simulated text search failure")
         return _FakeCursor(self._find_rows)
 
     def find_one(self, *a, **k):
@@ -72,25 +74,25 @@ def test_missing_required_args():
     assert out["ok"] is False
 
 
-def test_vector_failure_flags_degraded_not_silent(monkeypatch):
+def test_text_failure_flags_degraded_not_silent(monkeypatch):
     provider = {"name": "Dr. Sarah Chen", "specialty": "Endocrinology",
                 "location": {"city": "San Francisco"}, "common_prescriptions": []}
-    fake = _FakeDB(providers=_FakeCollection(find_rows=[provider], aggregate_error=True))
+    fake = _FakeDB(providers=_FakeCollection(find_rows=[provider], find_error=True))
     monkeypatch.setattr(tools, "_get_db", lambda: fake)
     out = json.loads(tools.search_providers("endocrinology", "San Francisco"))
     assert out["ok"] is True
-    assert out["search_mode"] == "text_fallback"
-    assert out["degraded"] is True  # a failed vector search must never look clean
+    assert out["search_mode"] == "regex_fallback"
+    assert out["degraded"] is True  # a failed text search must never look clean
     assert out["count"] == 1
 
 
-def test_vector_success_is_not_degraded(monkeypatch):
+def test_text_success_is_not_degraded(monkeypatch):
     provider = {"name": "Dr. Sarah Chen", "specialty": "Endocrinology",
                 "location": {"city": "San Francisco"}, "common_prescriptions": []}
     fake = _FakeDB(providers=_FakeCollection(find_rows=[provider]))
     monkeypatch.setattr(tools, "_get_db", lambda: fake)
     out = json.loads(tools.search_providers("endocrinology", "San Francisco"))
-    assert out["search_mode"] == "vector"
+    assert out["search_mode"] == "text"
     assert out["degraded"] is False
 
 

@@ -79,8 +79,8 @@ def search_providers(
 
     Returns:
         JSON string: {"ok", "providers", "count", "search_mode", "degraded", ...}.
-        `search_mode` is "vector" or "text_fallback"; `degraded` is true when
-        the preferred vector search failed and a fallback was used.
+        `search_mode` is "text" or "regex_fallback"; `degraded` is true when
+        the preferred text search failed and a regex fallback was used.
     """
     if not specialty.strip() or not location_city.strip():
         return _err("Both 'specialty' and 'location_city' are required.")

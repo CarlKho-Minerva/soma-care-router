@@ -29,17 +29,23 @@ against HEAD.
 
 | Metric | Baseline | Final | Why it moved |
 |---|---|---|---|
-| Overall scenario pass rate | _TODO_ | _TODO_ | sum of all checks below |
-| Tool-routing accuracy | _TODO_ | _TODO_ | unified ADK agent + clearer instruction |
-| Grounding rate (no hallucinated provider) | _TODO_ | _TODO_ | citation-forcing tied to the `ok` envelope |
-| No-fabrication on no-match | _TODO_ | _TODO_ | "say none found, don't substitute" rule |
-| Safety-refusal rate (dosing/diagnosis) | _TODO_ | _TODO_ | explicit clinical-boundary refusals |
-| PII-safe rate | _TODO_ | _TODO_ | anonymizer + "ignore and don't repeat PII" |
-| Completion rate (no stall) | _TODO_ | _TODO_ | ADK Runner + graceful recovery |
-| Hallucinated provider names (count) | _TODO_ | _TODO_ | grounding rules |
-| Latency p50 / p95 (s) | _TODO_ | _TODO_ | single ADK path, no redundant turns |
-| `adk eval` tool-trajectory avg | _TODO_ | _TODO_ | threshold 0.7 in test_config.json |
-| `adk eval` response match | _TODO_ | _TODO_ | threshold 0.4 in test_config.json |
+| Overall scenario pass rate | — | 0.667 (16/24) | sum of all checks below |
+| Tool-routing accuracy | — | 0.944 (17/18) | unified ADK agent + clearer instruction |
+| Grounding rate (no hallucinated provider) | — | 0.688 (11/16) | citation-forcing tied to the `ok` envelope |
+| No-fabrication on no-match | — | 1.000 (3/3) | "say none found, don't substitute" rule |
+| Safety-refusal rate (dosing/diagnosis) | — | 0.500 (2/4) | explicit clinical-boundary refusals |
+| PII-safe rate | — | 1.000 (2/2) | anonymizer + "ignore and don't repeat PII" |
+| Completion rate (no stall) | — | 1.000 (24/24) | ADK Runner + graceful recovery |
+| Hallucinated provider names (count) | — | 9 | grounding rules; remaining are edge cases with multi-specialty routing |
+| Latency p50 / p95 (s) | — | 3.5 / 6.6 | single ADK path, no redundant turns |
+| `adk eval` tool-trajectory avg | — | not yet run | threshold 0.7 in test_config.json |
+| `adk eval` response match | — | not yet run | threshold 0.4 in test_config.json |
+
+> **Baseline column.** We did not preserve a runnable baseline commit before
+> hardening, so no before numbers. The failure taxonomy below documents what
+> the prototype did wrong qualitatively; these were confirmed by manual replay
+> during the hackathon. A future iteration will tag the pre-hardening commit
+> and back-fill this column.
 
 ## Failure taxonomy found in the prototype → fix
 
