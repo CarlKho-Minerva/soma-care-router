@@ -127,6 +127,47 @@
   }
   .vault-file.open .vault-file-content { display: block; }
 
+  /* Editable vault */
+  .vault-file-content.editing {
+    background: var(--surface3);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 10px 12px;
+    outline: none;
+    cursor: text;
+    min-height: 60px;
+  }
+  .vault-file-actions {
+    display: none;
+    padding: 6px 14px 10px;
+    gap: 6px;
+  }
+  .vault-file.open .vault-file-actions { display: flex; }
+  .vault-action-btn {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .vault-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .vault-action-btn.editing { border-color: var(--accent); color: var(--accent); }
+  .vault-edited-badge {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--warn);
+    letter-spacing: 0.08em;
+    margin-left: auto;
+    align-self: center;
+  }
+
   /* ── Center: Main ── */
   .main-panel {
     display: flex;
@@ -427,12 +468,14 @@
         <div class="label">Care Router</div>
         <div class="bubble">
           <strong>Welcome to Soma Care Router.</strong><br><br>
-          I can help you find the right specialist based on your health vault data. Your personal information stays on this device — I only receive anonymized clinical context.<br><br>
+          I match you to the right specialist using your private health vault as grounded context. Your personal information stays on this device — I only receive anonymized clinical intent.<br><br>
+          The vault on the left is editable. Change medications, conditions, or labs and watch how routing adapts.<br><br>
           Try asking something like:<br>
           <ul>
             <li>"My A1C came back at 7.2%. Who should I see?"</li>
             <li>"Find a cardiologist who understands SSRI interactions"</li>
-            <li>"I need a dermatologist for seborrheic dermatitis"</li>
+            <li>"Check if metformin interacts with my current meds"</li>
+            <li>"I need a derm for seborrheic dermatitis"</li>
           </ul>
         </div>
       </div>
@@ -476,25 +519,80 @@ const inputEl = document.getElementById('query-input');
 const sendBtn = document.getElementById('send-btn');
 const anonBanner = document.getElementById('anon-banner');
 
+// In-memory vault — starts from server, editable in UI
+let vaultData = {};
+
 async function loadVault() {
   try {
     const res = await fetch('/api/vault');
-    const vault = await res.json();
-    const container = document.getElementById('vault-files');
-    for (const [filename, content] of Object.entries(vault)) {
-      const div = document.createElement('div');
-      div.className = 'vault-file';
-      div.innerHTML = `
-        <div class="vault-file-header" onclick="this.parentElement.classList.toggle('open')">
-          <span>${escapeHtml(filename)}</span>
-          <span class="arrow">&#9654;</span>
-        </div>
-        <div class="vault-file-content">${escapeHtml(content)}</div>
-      `;
-      container.appendChild(div);
-    }
+    vaultData = await res.json();
+    renderVault();
   } catch (e) {
     console.error('Failed to load vault:', e);
+  }
+}
+
+function renderVault() {
+  const container = document.getElementById('vault-files');
+  container.innerHTML = '';
+  const sortedKeys = Object.keys(vaultData).sort();
+  for (const filename of sortedKeys) {
+    const content = vaultData[filename];
+    const div = document.createElement('div');
+    div.className = 'vault-file';
+    div.dataset.filename = filename;
+
+    const header = document.createElement('div');
+    header.className = 'vault-file-header';
+    header.innerHTML = `<span>${escapeHtml(filename.replace('.md', ''))}</span><span class="arrow">&#9654;</span>`;
+    header.onclick = () => div.classList.toggle('open');
+
+    const contentEl = document.createElement('div');
+    contentEl.className = 'vault-file-content';
+    contentEl.textContent = content;
+
+    const actions = document.createElement('div');
+    actions.className = 'vault-file-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'vault-action-btn';
+    editBtn.textContent = 'Edit';
+    editBtn.onclick = () => toggleEdit(filename, contentEl, editBtn);
+
+    const badge = document.createElement('span');
+    badge.className = 'vault-edited-badge';
+    badge.style.display = 'none';
+    badge.textContent = 'EDITED';
+    badge.dataset.badge = filename;
+
+    actions.appendChild(editBtn);
+    actions.appendChild(badge);
+
+    div.appendChild(header);
+    div.appendChild(contentEl);
+    div.appendChild(actions);
+    container.appendChild(div);
+  }
+}
+
+function toggleEdit(filename, contentEl, btn) {
+  const isEditing = contentEl.contentEditable === 'true';
+  if (isEditing) {
+    // Save
+    contentEl.contentEditable = 'false';
+    contentEl.classList.remove('editing');
+    btn.textContent = 'Edit';
+    btn.classList.remove('editing');
+    vaultData[filename] = contentEl.textContent;
+    const badge = document.querySelector(`[data-badge="${filename}"]`);
+    if (badge) badge.style.display = 'inline';
+  } else {
+    // Start editing
+    contentEl.contentEditable = 'true';
+    contentEl.classList.add('editing');
+    contentEl.focus();
+    btn.textContent = 'Save';
+    btn.classList.add('editing');
   }
 }
 
@@ -551,9 +649,10 @@ async function sendQuery() {
 
   let anonymizedContext = '';
   try {
-    const vaultRes = await fetch('/api/vault');
-    const vault = await vaultRes.json();
-    const fullContext = Object.values(vault).join('\n\n');
+    // Use local (possibly edited) vault data instead of re-fetching
+    const fullContext = Object.entries(vaultData)
+      .map(([k, v]) => `## ${k}\n${v}`)
+      .join('\n\n');
 
     const anonRes = await fetch('/api/anonymize', {
       method: 'POST',
@@ -562,7 +661,7 @@ async function sendQuery() {
     });
     const anonData = await anonRes.json();
     anonymizedContext = anonData.anonymized;
-    addTrace('anonymize', `PII stripped. Anonymized context:\n${anonymizedContext.substring(0, 500)}...`);
+    addTrace('anonymize', `PII stripped. Vault files: ${Object.keys(vaultData).length}. Anonymized context:\n${anonymizedContext.substring(0, 500)}...`);
   } catch (e) {
     addTrace('anonymize', `Warning: Could not anonymize. Error: ${e.message}`);
   }
