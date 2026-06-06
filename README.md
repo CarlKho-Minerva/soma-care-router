@@ -76,6 +76,77 @@ Open `http://localhost:8000` to use the Care Router.
 | `CARE_ROUTER_MODEL` | Gemini model id (default `gemini-2.5-flash`) |
 | `USE_MONGODB_MCP` | `1` to route tools through the native MongoDB MCP server (needs Node.js / npx) |
 
+Local dev only:
+
+| Variable | Description |
+|---|---|
+| `PORT` | Local server port (Cloud Run injects this automatically) |
+| `HOST` | Local bind host |
+
+## Cloud Run Deploy (Known-Good)
+
+Use a deploy env file that includes only app secrets/config, and excludes reserved runtime vars (`PORT`, `K_SERVICE`, etc.).
+
+```bash
+# 1) Create deploy env file (do NOT include PORT/HOST)
+cat > .env.run <<'EOF'
+MONGODB_URI=...
+MONGODB_DB=soma_care_router
+GOOGLE_API_KEY=...
+GOOGLE_CLOUD_PROJECT=somach-care-router
+GOOGLE_CLOUD_LOCATION=us-central1
+CARE_ROUTER_MODEL=gemini-2.5-flash
+EOF
+
+# 2) Deploy
+gcloud config set project somach-care-router
+gcloud run deploy somach-care-router \
+	--source . \
+	--env-vars-file .env.run \
+	--region us-central1 \
+	--allow-unauthenticated
+```
+
+If deploy output says `Setting IAM policy failed`, run:
+
+```bash
+gcloud run services add-iam-policy-binding somach-care-router \
+	--region us-central1 \
+	--member=allUsers \
+	--role=roles/run.invoker
+```
+
+Then verify:
+
+```bash
+SERVICE_URL="$(gcloud run services describe somach-care-router --region us-central1 --format='value(status.url)')"
+echo "$SERVICE_URL"
+curl -i "$SERVICE_URL/health"
+```
+
+If you still see `Error: Forbidden` at `/`, check IAM binding exists:
+
+```bash
+gcloud run services get-iam-policy somach-care-router \
+	--region us-central1 \
+	--format='json(bindings)'
+```
+
+Look for `roles/run.invoker` containing `allUsers`.
+
+If adding `allUsers` fails with `FAILED_PRECONDITION` and `do not belong to a permitted customer`, your org policy is blocking public principals. In that case:
+
+```bash
+# Authenticated invoke works for permitted identities
+SERVICE_URL="$(gcloud run services describe somach-care-router --region us-central1 --format='value(status.url)')"
+curl -i -H "Authorization: Bearer $(gcloud auth print-identity-token)" "$SERVICE_URL/health"
+```
+
+For truly public access, you must either:
+
+1. Ask your org admin to allow `allUsers`/`allAuthenticatedUsers` for this project/service.
+2. Deploy in a project without that domain-restricted sharing policy.
+
 ## How It Works
 
 1. **Patient triggers routing** — a lab result is flagged abnormal (e.g., A1C at 7.2%)
