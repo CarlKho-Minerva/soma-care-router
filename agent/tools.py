@@ -92,35 +92,43 @@ def search_providers(
         return _err(f"Provider database unavailable: {e}")
 
     query_text = f"{specialty} {conditions}".strip()
-    search_mode = "vector"
+    search_mode = "text"
     degraded = False
+    projection = {k: 1 for k in _PROVIDER_PROJECTION if k != "_id"} | {"_id": 0}
 
+    # Primary: $text search (uses the standard text index created by seed_db.py)
     try:
-        pipeline = [
-            {
-                "$search": {
-                    "index": "provider_search",
-                    "text": {
-                        "query": query_text,
-                        "path": ["specialty", "subspecialties", "conditions_treated", "description"],
-                    },
-                }
-            },
-            {"$match": {"location.city": _rx(location_city)}},
-            {"$limit": max_results},
-            {"$project": _PROVIDER_PROJECTION},
-        ]
-        results = list(providers.aggregate(pipeline))
+        results = list(
+            providers.find(
+                {"$text": {"$search": query_text}, "location.city": _rx(location_city)},
+                {**projection, "score": {"$meta": "textScore"}},
+            )
+            .sort([("score", {"$meta": "textScore"})])
+            .limit(max_results)
+        )
     except PyMongoError as e:
-        # Do NOT pretend this succeeded. Record it, fall back, and flag degraded.
-        logger.warning("vector search failed, using text fallback: %s", e)
-        search_mode = "text_fallback"
+        logger.warning("text search failed, using regex fallback: %s", e)
+        search_mode = "regex_fallback"
         degraded = True
+        results = []
+
+    # Fallback: regex across multiple fields
+    if not results:
+        if search_mode != "regex_fallback":
+            search_mode = "regex_fallback"
         try:
             results = list(
                 providers.find(
-                    {"specialty": _rx(specialty), "location.city": _rx(location_city)},
-                    {k: 1 for k in _PROVIDER_PROJECTION if k != "_id"} | {"_id": 0},
+                    {
+                        "$or": [
+                            {"specialty": _rx(specialty)},
+                            {"subspecialties": _rx(specialty)},
+                            {"conditions_treated": _rx(specialty)},
+                            {"description": _rx(specialty)},
+                        ],
+                        "location.city": _rx(location_city),
+                    },
+                    projection,
                 ).limit(max_results)
             )
         except PyMongoError as e2:

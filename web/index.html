@@ -4,186 +4,264 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Soma Care Router</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0a0a0a;
-    --surface: #141414;
-    --surface2: #1c1c1c;
-    --border: #2a2a2a;
-    --accent: #00e5a0;
-    --accent-dim: rgba(0, 229, 160, 0.1);
-    --accent2: #00b4d8;
-    --text: #e8e8e8;
-    --dim: #888;
-    --danger: #ff6b6b;
-    --warn: #f0a500;
+    --bg: #06080a;
+    --surface: #0d1014;
+    --surface2: #151a1f;
+    --surface3: #1c2228;
+    --border: rgba(255,255,255,0.06);
+    --border-hover: rgba(255,255,255,0.12);
+    --accent: #34d399;
+    --accent-dim: rgba(52,211,153,0.08);
+    --accent-glow: rgba(52,211,153,0.15);
+    --accent2: #67e8f9;
+    --text: #e4e8ec;
+    --text-secondary: #8896a4;
+    --danger: #f87171;
+    --warn: #fbbf24;
+    --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+    --radius: 14px;
+    --radius-sm: 10px;
   }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--sans);
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* Layout */
-  .app { display: grid; grid-template-columns: 340px 1fr 340px; height: 100vh; }
+  ::selection {
+    background: var(--accent-dim);
+    color: var(--accent);
+  }
 
-  /* Left Panel — Vault */
+  /* ── Layout ── */
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    height: 100vh;
+  }
+
+  /* ── Left Panel: Vault ── */
   .vault-panel {
     background: var(--surface);
     border-right: 1px solid var(--border);
     overflow-y: auto;
-    padding: 20px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
-  .vault-panel h2 {
-    font-size: 0.85rem;
-    color: var(--accent);
+
+  .panel-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
+    color: var(--text-secondary);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .privacy-strip {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(52,211,153,0.12);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1.4;
   }
+  .privacy-strip svg { flex-shrink: 0; }
+
   .vault-file {
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-bottom: 12px;
+    border-radius: var(--radius-sm);
     overflow: hidden;
+    transition: border-color 0.2s;
   }
+  .vault-file:hover { border-color: var(--border-hover); }
   .vault-file-header {
-    padding: 10px 14px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--dim);
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    user-select: none;
   }
   .vault-file-header:hover { color: var(--text); }
-  .vault-file-header .arrow { transition: transform 0.2s; }
+  .vault-file-header .arrow {
+    font-size: 10px;
+    transition: transform 0.2s;
+    color: var(--text-secondary);
+  }
   .vault-file.open .arrow { transform: rotate(90deg); }
   .vault-file-content {
     display: none;
-    padding: 0 14px 12px;
-    font-size: 0.75rem;
-    color: var(--dim);
-    line-height: 1.5;
+    padding: 0 14px 14px;
+    font-size: 12px;
+    font-family: var(--mono);
+    color: var(--text-secondary);
+    line-height: 1.6;
     white-space: pre-wrap;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    max-height: 300px;
+    max-height: 280px;
     overflow-y: auto;
   }
   .vault-file.open .vault-file-content { display: block; }
 
-  .privacy-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    background: var(--accent-dim);
-    border: 1px solid rgba(0, 229, 160, 0.2);
-    border-radius: 8px;
-    font-size: 0.75rem;
-    color: var(--accent);
-    margin-bottom: 16px;
-  }
-
-  /* Center — Main */
+  /* ── Center: Main ── */
   .main-panel {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
   }
+
   .header {
     padding: 20px 32px;
     border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: var(--surface);
   }
-  .header h1 {
-    font-size: 1.4rem;
+  .header-brand {
+    font-size: 18px;
     font-weight: 700;
+    letter-spacing: -0.03em;
   }
-  .header h1 span { color: var(--accent); }
-  .header .status {
-    font-size: 0.8rem;
-    color: var(--dim);
+  .header-brand span { color: var(--accent); }
+  .header-status {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    letter-spacing: 0.03em;
   }
-  .header .dot {
-    width: 8px; height: 8px;
+  .status-dot {
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background: var(--accent);
+    box-shadow: 0 0 8px var(--accent-glow);
   }
 
-  /* Chat / Results area */
+  /* ── Chat ── */
   .results-area {
     flex: 1;
     overflow-y: auto;
-    padding: 24px 32px;
+    padding: 28px 32px;
   }
+
   .message {
-    margin-bottom: 20px;
-    animation: slideUp 0.3s ease;
+    margin-bottom: 24px;
+    animation: msgIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .message .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+  .message.user .label { text-align: right; }
 
   .message.user .bubble {
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 12px 12px 4px 12px;
-    padding: 14px 18px;
-    max-width: 600px;
+    border-radius: var(--radius) var(--radius) 4px var(--radius);
+    padding: 16px 20px;
+    max-width: 560px;
     margin-left: auto;
-    font-size: 0.95rem;
+    font-size: 15px;
+    line-height: 1.6;
   }
+
   .message.agent .bubble {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px 12px 12px 4px;
-    padding: 14px 18px;
-    max-width: 700px;
-    font-size: 0.95rem;
-    line-height: 1.6;
+    border-radius: var(--radius) var(--radius) var(--radius) 4px;
+    padding: 16px 20px;
+    max-width: 640px;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
   }
-  .message.agent .bubble h3 { color: var(--accent); font-size: 1rem; margin: 12px 0 6px; }
-  .message.agent .bubble ul { margin: 8px 0; padding-left: 20px; }
-  .message.agent .bubble li { margin-bottom: 4px; }
-  .message.agent .bubble strong { color: var(--text); }
-  .message .label {
-    font-size: 0.7rem;
-    color: var(--dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 4px;
+  .message.agent .bubble h3 {
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 600;
+    margin: 14px 0 6px;
+    letter-spacing: -0.01em;
   }
-  .message.user .label { text-align: right; }
+  .message.agent .bubble ul { margin: 8px 0; padding-left: 18px; }
+  .message.agent .bubble li { margin-bottom: 4px; color: var(--text-secondary); }
+  .message.agent .bubble strong { color: var(--text); font-weight: 600; }
 
-  /* Provider cards in results */
+  /* Provider cards */
   .provider-card {
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    margin: 12px 0;
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    margin: 14px 0;
+    transition: border-color 0.2s;
   }
-  .provider-card h4 { font-size: 1rem; margin-bottom: 4px; }
-  .provider-card .spec { color: var(--accent); font-size: 0.85rem; }
-  .provider-card .meta { color: var(--dim); font-size: 0.8rem; margin-top: 8px; line-height: 1.5; }
+  .provider-card:hover { border-color: var(--border-hover); }
+  .provider-card h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; letter-spacing: -0.01em; }
+  .provider-card .spec { color: var(--accent); font-size: 13px; font-weight: 500; }
+  .provider-card .meta { color: var(--text-secondary); font-size: 13px; margin-top: 8px; line-height: 1.6; }
 
-  /* Input bar */
+  /* ── Input ── */
   .input-bar {
-    padding: 16px 32px;
+    padding: 18px 32px 22px;
     border-top: 1px solid var(--border);
     background: var(--surface);
   }
+  .anon-banner {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(52,211,153,0.12);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+  }
+  .anon-banner.visible { display: flex; }
+  .anon-banner svg { flex-shrink: 0; }
+
   .input-row {
     display: flex;
     gap: 10px;
@@ -192,118 +270,136 @@
     flex: 1;
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
     color: var(--text);
-    font-size: 0.95rem;
+    font-family: var(--sans);
+    font-size: 15px;
     outline: none;
+    transition: border-color 0.2s;
   }
   .input-row input:focus { border-color: var(--accent); }
-  .input-row input::placeholder { color: #555; }
-  .input-row button {
+  .input-row input::placeholder { color: #4a5568; }
+
+  .send-btn {
     background: var(--accent);
-    color: #000;
+    color: var(--bg);
     border: none;
-    border-radius: 10px;
-    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    padding: 14px 28px;
+    font-family: var(--sans);
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 14px;
+    letter-spacing: -0.01em;
     cursor: pointer;
+    transition: opacity 0.15s;
   }
-  .input-row button:hover { opacity: 0.9; }
-  .input-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .send-btn:hover { opacity: 0.88; }
+  .send-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 
   .quick-actions {
     display: flex;
     gap: 8px;
-    margin-top: 10px;
+    margin-top: 12px;
     flex-wrap: wrap;
   }
   .quick-btn {
-    background: var(--surface2);
+    background: transparent;
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 0.8rem;
-    color: var(--dim);
+    padding: 7px 14px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
     cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
   }
   .quick-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* Right Panel — Agent Trace */
+  /* ── Right Panel: Agent Trace ── */
   .trace-panel {
     background: var(--surface);
     border-left: 1px solid var(--border);
     overflow-y: auto;
-    padding: 20px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
-  .trace-panel h2 {
-    font-size: 0.85rem;
-    color: var(--accent2);
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 16px;
-  }
+
   .trace-item {
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 8px;
     padding: 10px 12px;
-    margin-bottom: 8px;
-    font-size: 0.75rem;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    animation: slideUp 0.3s ease;
+    font-size: 11px;
+    font-family: var(--mono);
+    animation: msgIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .trace-item .trace-label {
-    font-size: 0.65rem;
+    font-size: 9px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.12em;
     margin-bottom: 4px;
     font-weight: 700;
   }
   .trace-item.tool-call .trace-label { color: var(--warn); }
   .trace-item.tool-result .trace-label { color: var(--accent2); }
   .trace-item.response .trace-label { color: var(--accent); }
-  .trace-item .trace-body { color: var(--dim); white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto; }
+  .trace-item.anonymize .trace-label { color: var(--text-secondary); }
+  .trace-item .trace-body {
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 180px;
+    overflow-y: auto;
+    line-height: 1.5;
+  }
 
+  /* Thinking */
   .thinking {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 0;
-    color: var(--dim);
-    font-size: 0.85rem;
+    gap: 10px;
+    padding: 12px 0;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
   }
   .thinking .dots span {
     display: inline-block;
-    width: 6px; height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: var(--accent);
     margin: 0 2px;
-    animation: bounce 1.4s infinite ease-in-out;
+    animation: pulse 1.4s infinite ease-in-out;
   }
   .thinking .dots span:nth-child(2) { animation-delay: 0.2s; }
   .thinking .dots span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
-
-  /* Anonymization banner */
-  .anon-banner {
-    background: rgba(0, 229, 160, 0.05);
-    border: 1px solid rgba(0, 229, 160, 0.15);
-    border-radius: 10px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    font-size: 0.8rem;
-    color: var(--accent);
-    display: none;
+  @keyframes pulse {
+    0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+    40% { opacity: 1; transform: scale(1); }
   }
-  .anon-banner.visible { display: block; }
 
-  /* Responsive */
+  /* ── Responsive ── */
   @media (max-width: 1100px) {
     .app { grid-template-columns: 1fr; }
     .vault-panel, .trace-panel { display: none; }
+    .main-panel { border: none; }
   }
+  @media (max-width: 600px) {
+    .results-area { padding: 20px 16px; }
+    .input-bar { padding: 14px 16px 18px; }
+    .header { padding: 16px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
 </style>
 </head>
 <body>
@@ -311,16 +407,19 @@
 
   <!-- Left: Health Vault -->
   <div class="vault-panel">
-    <div class="privacy-badge">🔒 Local-Only Health Vault — PII never sent to cloud</div>
-    <h2>🗂️ Health Vault</h2>
+    <div class="panel-label">Health Vault</div>
+    <div class="privacy-strip">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Local-only vault. PII never leaves this device.
+    </div>
     <div id="vault-files"></div>
   </div>
 
   <!-- Center: Main -->
   <div class="main-panel">
     <div class="header">
-      <h1>Soma <span>Care Router</span></h1>
-      <div class="status"><div class="dot"></div> Agent Ready</div>
+      <div class="header-brand">Soma <span>Care Router</span></div>
+      <div class="header-status"><div class="status-dot"></div> Agent ready</div>
     </div>
 
     <div class="results-area" id="results">
@@ -330,33 +429,36 @@
           <strong>Welcome to Soma Care Router.</strong><br><br>
           I can help you find the right specialist based on your health vault data. Your personal information stays on this device — I only receive anonymized clinical context.<br><br>
           Try asking something like:<br>
-          • "My A1C came back at 7.2%. Who should I see?"<br>
-          • "Find a cardiologist who understands SSRI interactions"<br>
-          • "I need a dermatologist for seborrheic dermatitis"
+          <ul>
+            <li>"My A1C came back at 7.2%. Who should I see?"</li>
+            <li>"Find a cardiologist who understands SSRI interactions"</li>
+            <li>"I need a dermatologist for seborrheic dermatitis"</li>
+          </ul>
         </div>
       </div>
     </div>
 
     <div class="input-bar">
       <div class="anon-banner" id="anon-banner">
-        🔒 PII stripped — sending anonymized intent to cloud agent...
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        PII stripped — sending anonymized intent to cloud agent
       </div>
       <div class="input-row">
         <input type="text" id="query-input" placeholder="Describe what specialist you need..." />
-        <button id="send-btn" onclick="sendQuery()">Route →</button>
+        <button class="send-btn" id="send-btn" onclick="sendQuery()">Route</button>
       </div>
       <div class="quick-actions">
-        <div class="quick-btn" onclick="quickQuery('My A1C is 7.2%. Find an endocrinologist in San Francisco.')">🧪 Elevated A1C</div>
-        <div class="quick-btn" onclick="quickQuery('Find a cardiologist who understands SSRI and stimulant interactions.')">❤️ Cardiology + Meds</div>
-        <div class="quick-btn" onclick="quickQuery('I need a dermatologist for seborrheic dermatitis, preferably one who knows about SSRI side effects.')">🧴 Dermatology</div>
-        <div class="quick-btn" onclick="quickQuery('Check if metformin would interact with my current escitalopram and methylphenidate.')">💊 Drug Check</div>
+        <div class="quick-btn" onclick="quickQuery('My A1C is 7.2%. Find an endocrinologist in San Francisco.')">Elevated A1C</div>
+        <div class="quick-btn" onclick="quickQuery('Find a cardiologist who understands SSRI and stimulant interactions.')">Cardiology + Meds</div>
+        <div class="quick-btn" onclick="quickQuery('I need a dermatologist for seborrheic dermatitis, preferably one who knows about SSRI side effects.')">Dermatology</div>
+        <div class="quick-btn" onclick="quickQuery('Check if metformin would interact with my current escitalopram and methylphenidate.')">Drug Check</div>
       </div>
     </div>
   </div>
 
   <!-- Right: Agent Trace -->
   <div class="trace-panel">
-    <h2>🔍 Agent Trace</h2>
+    <div class="panel-label">Agent Trace</div>
     <div id="trace-items">
       <div class="trace-item response">
         <div class="trace-label">System</div>
@@ -374,7 +476,6 @@ const inputEl = document.getElementById('query-input');
 const sendBtn = document.getElementById('send-btn');
 const anonBanner = document.getElementById('anon-banner');
 
-// Load vault on start
 async function loadVault() {
   try {
     const res = await fetch('/api/vault');
@@ -385,8 +486,8 @@ async function loadVault() {
       div.className = 'vault-file';
       div.innerHTML = `
         <div class="vault-file-header" onclick="this.parentElement.classList.toggle('open')">
-          <span>${filename}</span>
-          <span class="arrow">▶</span>
+          <span>${escapeHtml(filename)}</span>
+          <span class="arrow">&#9654;</span>
         </div>
         <div class="vault-file-content">${escapeHtml(content)}</div>
       `;
@@ -413,7 +514,7 @@ function addThinking() {
   const div = document.createElement('div');
   div.className = 'thinking';
   div.id = 'thinking-indicator';
-  div.innerHTML = `<div class="dots"><span></span><span></span><span></span></div> Routing through Privacy Bridge...`;
+  div.innerHTML = `<div class="dots"><span></span><span></span><span></span></div> Routing through Privacy Bridge`;
   resultsEl.appendChild(div);
   resultsEl.scrollTop = resultsEl.scrollHeight;
 }
@@ -445,7 +546,6 @@ async function sendQuery() {
   sendBtn.disabled = true;
   addMessage('user', escapeHtml(query));
 
-  // Step 1: Anonymize
   anonBanner.classList.add('visible');
   addTrace('anonymize', 'Stripping PII from health vault context...');
 
@@ -464,12 +564,10 @@ async function sendQuery() {
     anonymizedContext = anonData.anonymized;
     addTrace('anonymize', `PII stripped. Anonymized context:\n${anonymizedContext.substring(0, 500)}...`);
   } catch (e) {
-    addTrace('anonymize', `Warning: Could not anonymize — using raw vault. Error: ${e.message}`);
+    addTrace('anonymize', `Warning: Could not anonymize. Error: ${e.message}`);
   }
 
   anonBanner.classList.remove('visible');
-
-  // Step 2: Route
   addThinking();
 
   try {
@@ -482,7 +580,6 @@ async function sendQuery() {
 
     removeThinking();
 
-    // Add trace items
     if (data.trace) {
       for (const t of data.trace) {
         if (t.type === 'tool_call') {
@@ -493,7 +590,6 @@ async function sendQuery() {
       }
     }
 
-    // Render response
     const html = markdownToHtml(data.response || 'No response from agent.');
     addMessage('agent', html);
     addTrace('response', 'Final response delivered.');
@@ -507,7 +603,6 @@ async function sendQuery() {
   inputEl.focus();
 }
 
-// Basic markdown → HTML
 function markdownToHtml(md) {
   return md
     .replace(/^### (.*$)/gm, '<h3>$1</h3>')
@@ -520,7 +615,6 @@ function markdownToHtml(md) {
     .replace(/\n/g, '<br>');
 }
 
-// Enter to send
 inputEl.addEventListener('keydown', e => {
   if (e.key === 'Enter' && !e.shiftKey) {
     e.preventDefault();
@@ -528,7 +622,6 @@ inputEl.addEventListener('keydown', e => {
   }
 });
 
-// Init
 loadVault();
 </script>
 </body>
