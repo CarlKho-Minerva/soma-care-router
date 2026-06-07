@@ -73,6 +73,16 @@
     border-bottom: 1px solid var(--border);
   }
 
+  .section-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin: 2px 0 8px;
+  }
+
   .privacy-strip {
     display: flex;
     align-items: center;
@@ -127,6 +137,43 @@
   }
   .vault-file.open .vault-file-content { display: block; }
 
+  .vault-render {
+    font-family: var(--sans);
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+  .vault-render h4 {
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 600;
+    margin: 8px 0 6px;
+  }
+  .vault-render ul {
+    margin: 4px 0 8px;
+    padding-left: 16px;
+  }
+  .vault-render li { margin-bottom: 4px; }
+  .vault-render p { margin-bottom: 6px; }
+
+  .vault-editor {
+    display: none;
+    width: 100%;
+    min-height: 170px;
+    background: var(--surface3);
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 10px 12px;
+    outline: none;
+    color: var(--text);
+    font-size: 12px;
+    line-height: 1.6;
+    font-family: var(--mono);
+    resize: vertical;
+  }
+  .vault-file-content.editing .vault-render { display: none; }
+  .vault-file-content.editing .vault-editor { display: block; }
+
   /* Editable vault */
   .vault-file-content.editing {
     background: var(--surface3);
@@ -159,6 +206,14 @@
   }
   .vault-action-btn:hover { border-color: var(--accent); color: var(--accent); }
   .vault-action-btn.editing { border-color: var(--accent); color: var(--accent); }
+  .vault-action-btn.secondary {
+    border-color: rgba(248,113,113,0.35);
+    color: #fca5a5;
+  }
+  .vault-action-btn.secondary:hover {
+    border-color: rgba(248,113,113,0.75);
+    color: #fecaca;
+  }
   .vault-edited-badge {
     font-family: var(--mono);
     font-size: 9px;
@@ -167,6 +222,40 @@
     margin-left: auto;
     align-self: center;
   }
+
+  .papers-strip {
+    background: linear-gradient(135deg, rgba(103,232,249,0.09), rgba(52,211,153,0.03));
+    border: 1px solid rgba(103,232,249,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+  }
+  .paper-item {
+    padding: 8px 0;
+    border-bottom: 1px dashed rgba(255,255,255,0.08);
+  }
+  .paper-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .paper-title {
+    font-size: 12px;
+    color: var(--text);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .paper-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 3px;
+    letter-spacing: 0.03em;
+  }
+  .paper-link {
+    color: var(--accent2);
+    text-decoration: none;
+    font-size: 11px;
+  }
+  .paper-link:hover { text-decoration: underline; }
 
   /* ── Center: Main ── */
   .main-panel {
@@ -184,6 +273,36 @@
     align-items: center;
     justify-content: space-between;
     background: var(--surface);
+  }
+
+  .explain-bar {
+    padding: 12px 32px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(52,211,153,0.03), transparent);
+  }
+  .explain-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .step-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .step-kicker {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 5px;
+  }
+  .step-copy {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.45;
   }
   .header-brand {
     font-size: 18px;
@@ -213,6 +332,17 @@
     flex: 1;
     overflow-y: auto;
     padding: 28px 32px;
+  }
+
+  .hero-callout {
+    background: linear-gradient(180deg, rgba(103,232,249,0.05), rgba(103,232,249,0.01));
+    border: 1px solid rgba(103,232,249,0.18);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
   }
 
   .message {
@@ -429,11 +559,13 @@
     .app { grid-template-columns: 1fr; }
     .vault-panel, .trace-panel { display: none; }
     .main-panel { border: none; }
+    .explain-bar { padding: 12px 16px; }
   }
   @media (max-width: 600px) {
     .results-area { padding: 20px 16px; }
     .input-bar { padding: 14px 16px 18px; }
     .header { padding: 16px; }
+    .explain-steps { grid-template-columns: 1fr; }
   }
 
   /* Scrollbar */
@@ -453,6 +585,24 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Local-only vault. PII never leaves this device.
     </div>
+    <div class="papers-strip">
+      <div class="section-title">Papers & Evidence</div>
+      <div class="paper-item">
+        <div class="paper-title">Family caregivers in the US</div>
+        <div class="paper-meta">AARP + National Alliance for Caregiving</div>
+        <a class="paper-link" href="https://www.caregiving.org/caregiving-in-the-us-2020/" target="_blank" rel="noopener noreferrer">Open source</a>
+      </div>
+      <div class="paper-item">
+        <div class="paper-title">Clinical safety and medication interactions</div>
+        <div class="paper-meta">Drug interaction data used by demo checks</div>
+        <a class="paper-link" href="https://www.fda.gov/drugs" target="_blank" rel="noopener noreferrer">FDA drug safety reference</a>
+      </div>
+      <div class="paper-item">
+        <div class="paper-title">Local-first health data thesis</div>
+        <div class="paper-meta">On-device records + cloud reasoning split</div>
+        <a class="paper-link" href="https://research.google/pubs/" target="_blank" rel="noopener noreferrer">Google Research publications</a>
+      </div>
+    </div>
     <div id="vault-files"></div>
   </div>
 
@@ -463,10 +613,30 @@
       <div class="header-status"><div class="status-dot"></div> Agent ready</div>
     </div>
 
+    <div class="explain-bar">
+      <div class="explain-steps">
+        <div class="step-card">
+          <div class="step-kicker">Step 1 · Local Vault</div>
+          <div class="step-copy">Edit your health markdown files on-device. Nothing personal is sent directly.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-kicker">Step 2 · PII Strip</div>
+          <div class="step-copy">Names and identifiers are removed before any cloud request is made.</div>
+        </div>
+        <div class="step-card">
+          <div class="step-kicker">Step 3 · Route + Safety</div>
+          <div class="step-copy">Agent routes specialist search and checks medication interactions with tool trace.</div>
+        </div>
+      </div>
+    </div>
+
     <div class="results-area" id="results">
       <div class="message agent">
         <div class="label">Care Router</div>
         <div class="bubble">
+          <div class="hero-callout">
+            For demo recording: edit a vault file first, then run the same query again to show routing adaptation.
+          </div>
           <strong>Welcome to Soma Care Router.</strong><br><br>
           I match you to the right specialist using your private health vault as grounded context. Your personal information stays on this device — I only receive anonymized clinical intent.<br><br>
           The vault on the left is editable. Change medications, conditions, or labs and watch how routing adapts.<br><br>
@@ -549,7 +719,10 @@ function renderVault() {
 
     const contentEl = document.createElement('div');
     contentEl.className = 'vault-file-content';
-    contentEl.textContent = content;
+    contentEl.innerHTML = `
+      <div class="vault-render">${markdownToHtml(content)}</div>
+      <textarea class="vault-editor" spellcheck="false"></textarea>
+    `;
 
     const actions = document.createElement('div');
     actions.className = 'vault-file-actions';
@@ -557,7 +730,13 @@ function renderVault() {
     const editBtn = document.createElement('button');
     editBtn.className = 'vault-action-btn';
     editBtn.textContent = 'Edit';
-    editBtn.onclick = () => toggleEdit(filename, contentEl, editBtn);
+    editBtn.onclick = () => toggleEdit(filename, contentEl, editBtn, cancelBtn);
+
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = 'vault-action-btn secondary';
+    cancelBtn.textContent = 'Cancel';
+    cancelBtn.style.display = 'none';
+    cancelBtn.onclick = () => cancelEdit(filename, contentEl, editBtn, cancelBtn);
 
     const badge = document.createElement('span');
     badge.className = 'vault-edited-badge';
@@ -566,6 +745,7 @@ function renderVault() {
     badge.dataset.badge = filename;
 
     actions.appendChild(editBtn);
+  actions.appendChild(cancelBtn);
     actions.appendChild(badge);
 
     div.appendChild(header);
@@ -575,25 +755,39 @@ function renderVault() {
   }
 }
 
-function toggleEdit(filename, contentEl, btn) {
-  const isEditing = contentEl.contentEditable === 'true';
+function toggleEdit(filename, contentEl, btn, cancelBtn) {
+  const editor = contentEl.querySelector('.vault-editor');
+  const renderer = contentEl.querySelector('.vault-render');
+  const isEditing = contentEl.classList.contains('editing');
   if (isEditing) {
     // Save
-    contentEl.contentEditable = 'false';
     contentEl.classList.remove('editing');
     btn.textContent = 'Edit';
     btn.classList.remove('editing');
-    vaultData[filename] = contentEl.textContent;
+    cancelBtn.style.display = 'none';
+    const newText = editor.value;
+    vaultData[filename] = newText;
+    renderer.innerHTML = markdownToHtml(newText);
     const badge = document.querySelector(`[data-badge="${filename}"]`);
     if (badge) badge.style.display = 'inline';
   } else {
     // Start editing
-    contentEl.contentEditable = 'true';
     contentEl.classList.add('editing');
-    contentEl.focus();
+    editor.value = vaultData[filename] || '';
+    editor.focus();
     btn.textContent = 'Save';
     btn.classList.add('editing');
+    cancelBtn.style.display = 'inline-block';
   }
+}
+
+function cancelEdit(filename, contentEl, editBtn, cancelBtn) {
+  const editor = contentEl.querySelector('.vault-editor');
+  editor.value = vaultData[filename] || '';
+  contentEl.classList.remove('editing');
+  editBtn.textContent = 'Edit';
+  editBtn.classList.remove('editing');
+  cancelBtn.style.display = 'none';
 }
 
 function escapeHtml(s) {
@@ -703,15 +897,55 @@ async function sendQuery() {
 }
 
 function markdownToHtml(md) {
-  return md
-    .replace(/^### (.*$)/gm, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gm, '<h3>$1</h3>')
+  const src = (md || '').replace(/\r\n/g, '\n');
+  const lines = src.split('\n');
+  let html = '';
+  let inList = false;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trimEnd();
+    if (!line.trim()) {
+      if (inList) {
+        html += '</ul>';
+        inList = false;
+      }
+      continue;
+    }
+
+    if (line.startsWith('- ')) {
+      if (!inList) {
+        html += '<ul>';
+        inList = true;
+      }
+      html += `<li>${formatInline(line.slice(2))}</li>`;
+      continue;
+    }
+
+    if (inList) {
+      html += '</ul>';
+      inList = false;
+    }
+
+    if (line.startsWith('### ')) {
+      html += `<h3>${formatInline(line.slice(4))}</h3>`;
+    } else if (line.startsWith('## ')) {
+      html += `<h3>${formatInline(line.slice(3))}</h3>`;
+    } else if (line.startsWith('# ')) {
+      html += `<h3>${formatInline(line.slice(2))}</h3>`;
+    } else {
+      html += `<p>${formatInline(line)}</p>`;
+    }
+  }
+
+  if (inList) html += '</ul>';
+  return html || '<p>No content.</p>';
+}
+
+function formatInline(text) {
+  return escapeHtml(text)
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/^- (.*$)/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-    .replace(/\n\n/g, '<br><br>')
-    .replace(/\n/g, '<br>');
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
 inputEl.addEventListener('keydown', e => {
