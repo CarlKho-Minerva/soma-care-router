@@ -1,4 +1,4 @@
-# Architecture — Soma Care Router
+# Architecture — Somach - Care Router
 
 Two views: the **Privacy Bridge** (how a request flows without PII reaching the cloud) and the **Optimization & Evaluation loop** (the Track 2 reliability work). For the Devpost upload, export either panel to PNG at [mermaid.live](https://mermaid.live), or screenshot `deck/architecture.html`.
 

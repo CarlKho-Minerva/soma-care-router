@@ -1,4 +1,4 @@
-"""Reliability scoreboard for the Soma Care Router.
+"""Reliability scoreboard for the Somach - Care Router.
 
 Runs every scenario in scenarios.json through the live ADK agent and scores the
 metrics ADK's built-in trajectory/response eval does not directly cover:

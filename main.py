@@ -1,4 +1,4 @@
-"""Soma Care Router — FastAPI server.
+"""Somach - Care Router — FastAPI server.
 
 The care-routing endpoint runs through the ADK agent (`agent/runner.py`) so the
 demo, production, and `adk eval` all exercise the identical agent. Gemini is
@@ -59,14 +59,14 @@ def load_vault() -> dict[str, str]:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("🩺 Soma Care Router starting...")
+    print("🩺 Somach - Care Router starting...")
     print(f"   Model: {MODEL}")
     print(f"   Vault: {VAULT_DIR}")
     yield
     print("Shutting down.")
 
 
-app = FastAPI(title="Soma Care Router", lifespan=lifespan)
+app = FastAPI(title="Somach - Care Router", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory="web"), name="static")
 
 

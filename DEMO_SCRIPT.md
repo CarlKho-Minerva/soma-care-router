@@ -1,4 +1,4 @@
-# Soma Care Router — 3-Minute Demo Script
+# Somach - Care Router — 3-Minute Demo Script
 
 > **Track:** MongoDB | **Hackathon:** Google Cloud Rapid Agent Hackathon
 > **Deadline:** June 11, 2026 @ 2pm PDT
@@ -79,7 +79,7 @@
 
 **[SCREEN: Slide — closing]**
 
-> "Soma Care Router. Built with Gemini 3, Google Cloud Agent Builder, and MongoDB Atlas. Your data stays local. Actions happen in the cloud. Thank you."
+> "Somach - Care Router. Built with Gemini 3, Google Cloud Agent Builder, and MongoDB Atlas. Your data stays local. Actions happen in the cloud. Thank you."
 
 ---
 

@@ -1,4 +1,4 @@
-"""Soma Care Router agent package.
+"""Somach - Care Router agent package.
 
 Exposes `root_agent` so ADK tooling (`adk web`, `adk eval`, AgentEvaluator)
 can discover the agent by importing this package.

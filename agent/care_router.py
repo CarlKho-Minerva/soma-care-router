@@ -1,4 +1,4 @@
-"""Soma Care Router — ADK Agent definition.
+"""Somach - Care Router — ADK Agent definition.
 
 This is the single source of truth for the agent. Both the live server
 (`main.py` via `runner.py`) and the evaluation harness (`adk eval` /

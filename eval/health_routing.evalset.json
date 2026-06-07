@@ -1,6 +1,6 @@
 {
   "eval_set_id": "soma_care_router_health_routing_v1",
-  "name": "Soma Care Router — health routing trajectory eval",
+  "name": "Somach - Care Router — health routing trajectory eval",
   "description": "ADK trajectory + response eval for the Care Router. Cases are grounded in the seeded SF provider DB (10 providers across endocrinology, cardiology, dermatology, psychiatry, nephrology, internal medicine) and the 9 seeded drug interactions. Thresholds are intentionally tolerant in test_config.json because the agent legitimately phrases specialties and free-text args differently; the headline reliability metrics live in run_eval.py.",
   "eval_cases": [
     {
