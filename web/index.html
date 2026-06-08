@@ -976,30 +976,54 @@ function markdownToHtml(md) {
   const lines = src.split('\n');
   let html = '';
   let inList = false;
+  let tableBuffer = [];
+
+  function flushTable() {
+    if (!tableBuffer.length) return;
+    html += '<table style="width:100%;border-collapse:collapse;font-size:12px;margin:8px 0">';
+    tableBuffer.forEach((row, i) => {
+      const isSep = row.every(cell => /^[-: ]+$/.test(cell.trim()));
+      if (isSep) return;
+      const tag = (i === 0) ? 'th' : 'td';
+      const style = tag === 'th'
+        ? 'padding:5px 8px;border:1px solid rgba(255,255,255,0.1);text-align:left;color:var(--text);font-weight:600'
+        : 'padding:4px 8px;border:1px solid rgba(255,255,255,0.07);text-align:left;color:var(--text-secondary)';
+      html += '<tr>' + row.map(cell => `<${tag} style="${style}">${formatInline(cell.trim())}</${tag}>`).join('') + '</tr>';
+    });
+    html += '</table>';
+    tableBuffer = [];
+  }
 
   for (const rawLine of lines) {
     const line = rawLine.trimEnd();
+
+    if (line.startsWith('|') && line.includes('|', 1)) {
+      if (inList) { html += '</ul>'; inList = false; }
+      const cells = line.replace(/^\||\|$/g, '').split('|');
+      tableBuffer.push(cells);
+      continue;
+    } else if (tableBuffer.length) {
+      flushTable();
+    }
+
     if (!line.trim()) {
-      if (inList) {
-        html += '</ul>';
-        inList = false;
-      }
+      if (inList) { html += '</ul>'; inList = false; }
       continue;
     }
 
-    if (line.startsWith('- ')) {
-      if (!inList) {
-        html += '<ul>';
-        inList = true;
-      }
+    if (/^[-*_]{3,}$/.test(line.trim())) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:12px 0">';
+      continue;
+    }
+
+    if (line.startsWith('- ') || line.startsWith('* ')) {
+      if (!inList) { html += '<ul>'; inList = true; }
       html += `<li>${formatInline(line.slice(2))}</li>`;
       continue;
     }
 
-    if (inList) {
-      html += '</ul>';
-      inList = false;
-    }
+    if (inList) { html += '</ul>'; inList = false; }
 
     if (line.startsWith('### ')) {
       html += `<h3>${formatInline(line.slice(4))}</h3>`;
@@ -1013,6 +1037,7 @@ function markdownToHtml(md) {
   }
 
   if (inList) html += '</ul>';
+  flushTable();
   return html || '<p>No content.</p>';
 }
 

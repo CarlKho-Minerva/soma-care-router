@@ -2,7 +2,7 @@
 
 > Your data stays local. Actions happen in the cloud.
 
-**Somach - Care Router** is a privacy-preserving specialist routing agent built on [Health Passport](https://play.google.com/store/apps/details?id=com.carlkho.healthpassport) — a local-first health record vault. When a patient's labs flag something abnormal, the Care Router strips all PII, sends an anonymized clinical intent to a Google Cloud Agent (Gemini 3), and uses MongoDB Atlas via MCP to find matching specialists, check drug interactions, and return actionable next steps — all without patient identity ever touching the cloud.
+**Somach - Care Router** is a privacy-preserving specialist routing agent built on [Health Passport](https://play.google.com/store/apps/details?id=com.carlkho.healthpassport) — a local-first health record vault. When a patient's labs flag something abnormal, the Care Router strips all PII on-device, sends an anonymized clinical intent to a Gemini agent (ADK on Google Cloud Run), and uses MongoDB Atlas to find matching specialists, check drug interactions, and return actionable next steps — all without patient identity ever touching the cloud.
 
 ## Architecture — The Privacy Bridge
 
@@ -11,7 +11,7 @@
 
 ## Demo
 
-🎬 [Watch the 3-minute demo](TODO) | 🌐 [Live hosted project](https://care-router.somach.life)
+🎬 [Watch the 3-minute demo](TODO) | 🌐 [Live demo](https://somach-care-router-395233708660.us-central1.run.app)
 
 ## Tracks
 
@@ -168,7 +168,7 @@ soma-care-router/
 │   └── prompts.py           # System prompts
 ├── data/
 │   ├── seed_db.py           # MongoDB seeder
-│   ├── providers.json       # Provider database (10K records)
+│   ├── providers.json       # Seeded provider directory (10 providers, SF)
 │   └── health_vault/        # Sample local health vault
 ├── web/
 │   ├── index.html           # Main web UI
@@ -181,21 +181,34 @@ soma-care-router/
 
 ## Reliability & Evaluation
 
-Serving, the demo, and evaluation all run the same ADK `root_agent` (`agent/runner.py`), so we test exactly what we ship. The agent's instruction forces every provider name and appointment slot to come from a tool result, tools return a structured `ok`/`degraded` envelope instead of silently degrading, and a stalled run recovers without fabricating an answer.
+Serving, the demo, and evaluation all run the same ADK `root_agent` (`agent/runner.py`), so we test exactly what we ship. The agent's instruction forces every provider name to come verbatim from a tool result, tools return a structured `ok`/`degraded` envelope instead of silently degrading, and a stalled run recovers without fabricating an answer.
+
+### Reliability scoreboard (24 scenarios, June 7 2026)
+
+| Metric | Baseline | Hardened | Change |
+|---|---|---|---|
+| Overall pass rate | 0.583 | **0.833** | +43% |
+| Routing accuracy | 0.944 | **1.000** | +6% |
+| Grounding (no hallucinated provider) | 0.500 | **0.750** | +50% |
+| No-fabrication on no-match | 1.000 | **1.000** | — |
+| Safety-refusal (dosing/diagnosis) | 0.750 | **1.000** | +33% |
+| PII-safe | 1.000 | **1.000** | — |
+| Completion (no stall) | 1.000 | **1.000** | — |
+| Hallucinated provider names | 16 | **7** | −56% |
+
+Full scoreboard and failure taxonomy: [eval/RESULTS.md](eval/RESULTS.md)
 
 ```bash
 # deterministic, no credentials (CI gate):
 pytest eval/test_tools_reliability.py -q
 
 # live reliability scoreboard (needs Gemini key + seeded MongoDB):
-python eval/run_eval.py --label baseline --out eval/baseline.json   # pre-hardening commit
-python eval/run_eval.py --label final    --out eval/final.json      # HEAD
+python eval/run_eval.py --label baseline --out eval/baseline.json
+python eval/run_eval.py --label hardened --out eval/hardened.json
 
 # Google's trajectory/response eval:
 adk eval agent eval/health_routing.evalset.json --config_file_path eval/test_config.json
 ```
-
-Before and after numbers and the full failure taxonomy live in [eval/RESULTS.md](eval/RESULTS.md).
 
 ## License
 

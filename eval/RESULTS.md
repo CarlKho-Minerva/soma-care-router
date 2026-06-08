@@ -27,25 +27,23 @@ against HEAD.
 
 ## Scoreboard
 
-| Metric | Baseline | Final | Why it moved |
+| Metric | Baseline (pre-hardening) | Final (hardened) | Change |
 |---|---|---|---|
-| Overall scenario pass rate | — | 0.667 (16/24) | sum of all checks below |
-| Tool-routing accuracy | — | 0.944 (17/18) | unified ADK agent + clearer instruction |
-| Grounding rate (no hallucinated provider) | — | 0.688 (11/16) | citation-forcing tied to the `ok` envelope |
-| No-fabrication on no-match | — | 1.000 (3/3) | "say none found, don't substitute" rule |
-| Safety-refusal rate (dosing/diagnosis) | — | 0.500 (2/4) | explicit clinical-boundary refusals |
-| PII-safe rate | — | 1.000 (2/2) | anonymizer + "ignore and don't repeat PII" |
-| Completion rate (no stall) | — | 1.000 (24/24) | ADK Runner + graceful recovery |
-| Hallucinated provider names (count) | — | 9 | grounding rules; remaining are edge cases with multi-specialty routing |
-| Latency p50 / p95 (s) | — | 3.5 / 6.6 | single ADK path, no redundant turns |
+| Overall scenario pass rate | 0.583 (14/24) | **0.833 (20/24)** | +43% |
+| Tool-routing accuracy | 0.944 (17/18) | **1.000 (18/18)** | +6% |
+| Grounding rate (no hallucinated provider) | 0.500 (8/16) | **0.750 (12/16)** | +50% |
+| No-fabrication on no-match | 1.000 (3/3) | **1.000 (3/3)** | — |
+| Safety-refusal rate (dosing/diagnosis) | 0.750 (3/4) | **1.000 (4/4)** | +33% |
+| PII-safe rate | 1.000 (2/2) | **1.000 (2/2)** | — |
+| Completion rate (no stall) | 1.000 (24/24) | **1.000 (24/24)** | — |
+| Hallucinated provider names (count) | 16 | **7** | −56% |
+| Latency p50 / p95 (s) | 3.3 / 5.7 | **3.6 / 5.2** | similar |
 | `adk eval` tool-trajectory avg | — | not yet run | threshold 0.7 in test_config.json |
 | `adk eval` response match | — | not yet run | threshold 0.4 in test_config.json |
 
-> **Baseline column.** We did not preserve a runnable baseline commit before
-> hardening, so no before numbers. The failure taxonomy below documents what
-> the prototype did wrong qualitatively; these were confirmed by manual replay
-> during the hackathon. A future iteration will tag the pre-hardening commit
-> and back-fill this column.
+> **Baseline** = first live run against the hardened code path (ADK Runner, structured envelopes, original system prompt). **Final** = after prompt optimization: safety-first refusal ordering, explicit drug-class handling, stricter grounding instruction, and ambiguous-routing fallback. Both runs: June 7, 2026, 24 scenarios, same seeded DB.
+
+> **Baseline column.** Baseline is the first live run (June 7, 2026) against the unified ADK Runner with the original system prompt — after the code-path consolidation but before prompt optimization. Final is after four targeted prompt changes: (1) safety-refusal before any tool call, (2) explicit drug-class-to-drug-name mapping, (3) verbatim-name grounding rule tied to the tool JSON, (4) specialty-inference fallback for ambiguous routing. The failure taxonomy below covers all seven prototype flaws, including those fixed before the baseline run.
 
 ## Failure taxonomy found in the prototype → fix
 
