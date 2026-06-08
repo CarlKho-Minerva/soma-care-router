@@ -496,36 +496,85 @@
     padding: 24px 20px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
+  }
+
+  .trace-hint {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text-secondary);
+    opacity: 0.4;
+    letter-spacing: 0.08em;
+    margin-top: -4px;
+    margin-bottom: 2px;
   }
 
   .trace-item {
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 11px;
+    border-radius: 10px;
+    padding: 12px 14px;
     font-family: var(--mono);
     animation: msgIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    transition: border-color 0.15s;
   }
+  .trace-item:hover { border-color: var(--border-hover); }
+  .trace-item .trace-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .trace-item .trace-label-group { flex: 1; min-width: 0; }
   .trace-item .trace-label {
     font-size: 9px;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
     font-weight: 700;
   }
-  .trace-item.tool-call .trace-label { color: var(--warn); }
-  .trace-item.tool-result .trace-label { color: var(--accent2); }
+  .trace-item.tool_call .trace-label { color: var(--warn); }
+  .trace-item.tool_result .trace-label { color: var(--accent2); }
   .trace-item.response .trace-label { color: var(--accent); }
-  .trace-item.anonymize .trace-label { color: var(--text-secondary); }
-  .trace-item .trace-body {
+  .trace-item.anonymize .trace-label { color: #a78bfa; }
+  .trace-item .trace-summary {
+    color: var(--text-secondary);
+    font-size: 11px;
+    line-height: 1.55;
+    word-break: break-word;
+  }
+  .trace-item .trace-chevron {
+    font-size: 8px;
+    color: var(--text-secondary);
+    opacity: 0.45;
+    transition: transform 0.18s, opacity 0.18s;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .trace-item.expanded .trace-chevron { transform: rotate(90deg); opacity: 0.9; }
+  .trace-item .trace-detail {
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
     color: var(--text-secondary);
     white-space: pre-wrap;
     word-break: break-all;
-    max-height: 180px;
+    max-height: 340px;
     overflow-y: auto;
-    line-height: 1.5;
+    line-height: 1.6;
+    font-size: 10.5px;
+  }
+  .trace-item.expanded .trace-detail { display: block; }
+  .trace-detail-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    opacity: 0.6;
+    margin-bottom: 6px;
   }
 
   /* Thinking */
@@ -585,6 +634,7 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
       Local-only vault. PII never leaves this device.
     </div>
+
     <div class="papers-strip">
       <div class="section-title">Papers & Evidence</div>
       <div class="paper-item">
@@ -594,7 +644,7 @@
       </div>
       <div class="paper-item">
         <div class="paper-title">Clinical safety and medication interactions</div>
-        <div class="paper-meta">Drug interaction data used by demo checks</div>
+        <div class="paper-meta">Drug interaction reference database</div>
         <a class="paper-link" href="https://www.fda.gov/drugs" target="_blank" rel="noopener noreferrer">FDA drug safety reference</a>
       </div>
       <div class="paper-item">
@@ -609,7 +659,7 @@
   <!-- Center: Main -->
   <div class="main-panel">
     <div class="header">
-      <div class="header-brand">Soma <span>Care Router</span></div>
+      <div class="header-brand">Somach <span>Care Router</span></div>
       <div class="header-status"><div class="status-dot"></div> Agent ready</div>
     </div>
 
@@ -669,10 +719,15 @@
   <!-- Right: Agent Trace -->
   <div class="trace-panel">
     <div class="panel-label">Agent Trace</div>
+    <div class="trace-hint">Click any item to expand</div>
     <div id="trace-items">
-      <div class="trace-item response">
-        <div class="trace-label">System</div>
-        <div class="trace-body">Agent initialized. Waiting for query...</div>
+      <div class="trace-item response" style="cursor:default">
+        <div class="trace-header">
+          <div class="trace-label-group">
+            <div class="trace-label">System</div>
+            <div class="trace-summary">Agent initialized. Waiting for query.</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -813,11 +868,25 @@ function removeThinking() {
   if (el) el.remove();
 }
 
-function addTrace(type, content) {
+function addTrace(type, summary, detail) {
   const div = document.createElement('div');
   div.className = `trace-item ${type}`;
   const labels = { 'tool_call': 'Tool Call', 'tool_result': 'Tool Result', 'response': 'Response', 'anonymize': 'PII Strip' };
-  div.innerHTML = `<div class="trace-label">${labels[type] || type}</div><div class="trace-body">${escapeHtml(typeof content === 'string' ? content : JSON.stringify(content, null, 2))}</div>`;
+  const summaryText = typeof summary === 'string' ? summary : JSON.stringify(summary, null, 2);
+  const hasDetail = detail != null;
+  const detailText = hasDetail ? (typeof detail === 'string' ? detail : JSON.stringify(detail, null, 2)) : '';
+  div.innerHTML = `
+    <div class="trace-header">
+      <div class="trace-label-group">
+        <div class="trace-label">${escapeHtml(labels[type] || type)}</div>
+        <div class="trace-summary">${escapeHtml(summaryText)}</div>
+      </div>
+      ${hasDetail ? '<div class="trace-chevron">&#9654;</div>' : ''}
+    </div>
+    ${hasDetail ? `<div class="trace-detail">${escapeHtml(detailText)}</div>` : ''}`;
+  if (hasDetail) {
+    div.onclick = () => div.classList.toggle('expanded');
+  }
   traceEl.appendChild(div);
   traceEl.parentElement.scrollTop = traceEl.parentElement.scrollHeight;
 }
@@ -836,11 +905,9 @@ async function sendQuery() {
   addMessage('user', escapeHtml(query));
 
   anonBanner.classList.add('visible');
-  addTrace('anonymize', 'Stripping PII from health vault context...');
 
   let anonymizedContext = '';
   try {
-    // Use local (possibly edited) vault data instead of re-fetching
     const fullContext = Object.entries(vaultData)
       .map(([k, v]) => `## ${k}\n${v}`)
       .join('\n\n');
@@ -852,9 +919,12 @@ async function sendQuery() {
     });
     const anonData = await anonRes.json();
     anonymizedContext = anonData.anonymized;
-    addTrace('anonymize', `PII stripped. Vault files: ${Object.keys(vaultData).length}. Anonymized context:\n${anonymizedContext.substring(0, 500)}...`);
+    addTrace('anonymize',
+      `Identifiers stripped · ${Object.keys(vaultData).length} vault files · anonymized intent ready`,
+      `WHAT WAS SENT TO THE CLOUD:\n\n${anonymizedContext}`
+    );
   } catch (e) {
-    addTrace('anonymize', `Warning: Could not anonymize. Error: ${e.message}`);
+    addTrace('anonymize', `Warning: anonymization failed — ${e.message}`);
   }
 
   anonBanner.classList.remove('visible');
@@ -873,9 +943,17 @@ async function sendQuery() {
     if (data.trace) {
       for (const t of data.trace) {
         if (t.type === 'tool_call') {
-          addTrace('tool_call', `${t.tool}(${JSON.stringify(t.args)})`);
+          const argPairs = Object.entries(t.args || {}).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(', ');
+          addTrace('tool_call',
+            `${t.tool}(${argPairs})`,
+            JSON.stringify({tool: t.tool, args: t.args}, null, 2)
+          );
         } else if (t.type === 'tool_result') {
-          addTrace('tool_result', t.result);
+          const resultStr = typeof t.result === 'string' ? t.result : JSON.stringify(t.result, null, 2);
+          addTrace('tool_result',
+            resultStr.length > 100 ? resultStr.substring(0, 100) + '…' : resultStr,
+            resultStr
+          );
         }
       }
     }
